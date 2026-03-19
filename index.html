@@ -11,17 +11,7 @@
             padding: 0;
         }
 
-        <body>
-        <script>
-window.onload = function() {
-  var correctPassword = "test666"; // 密码是3322，你可以后续改
-  var password = prompt("请输入测试密码：");
-  if (password !== correctPassword) {
-    alert("密码错误！请私信购买获取～");
-    window.location.href = "about:blank";
-  }
-};
-</script> 
+        body {
             margin: 0;
             min-height: 100vh;
             background: url('https://s41.ax1x.com/2026/03/18/peeHHGd.jpg') no-repeat center center fixed;
@@ -264,6 +254,7 @@ window.onload = function() {
 
     <script>
         (function() {
+            // 测试题库
             const questions = [
                 {
                     text: "周末朋友约你出去玩，你的第一反应是？",
@@ -447,6 +438,7 @@ window.onload = function() {
                 }
             ];
 
+            // 全局状态管理
             let currentIndex = 0;
             let scores = {
                 social: 0,
@@ -457,6 +449,7 @@ window.onload = function() {
 
             const app = document.getElementById('app');
 
+            // 核心渲染函数
             function render() {
                 if (currentIndex < questions.length) {
                     renderQuestion(currentIndex);
@@ -465,6 +458,7 @@ window.onload = function() {
                 }
             }
 
+            // 渲染问题页面
             function renderQuestion(index) {
                 const q = questions[index];
                 const progress = `${index+1} / ${questions.length}`;
@@ -501,14 +495,16 @@ window.onload = function() {
                 app.innerHTML = html;
             }
 
+            // 渲染结果页面
             function renderResult() {
+                // 计算成长值
                 let selfGrowth = Math.round((scores.social + scores.task + scores.emotion + scores.creativity) / 4 * 1.2);
                 if (selfGrowth > 20) selfGrowth = 20;
 
+                // 处理得分排序
                 const typeNames = ['social', 'task', 'emotion', 'creativity'];
                 const typeLabels = ['社交', '任务', '情绪', '创意'];
                 const values = [scores.social, scores.task, scores.emotion, scores.creativity];
-
                 const sorted = [...values].sort((a, b) => b - a);
                 const maxVal = sorted[0];
                 const secondVal = sorted[1];
@@ -518,9 +514,9 @@ window.onload = function() {
                 const secondType = typeNames[secondIndex];
                 const maxLabel = typeLabels[maxIndex];
                 const secondLabel = typeLabels[secondIndex];
-
                 const maxCount = values.filter(v => v === maxVal).length;
 
+                // 生成结果标题
                 let resultTitle = '';
                 if (maxCount > 1) {
                     resultTitle = '🤖 全能混合型机器人';
@@ -533,6 +529,7 @@ window.onload = function() {
                     }
                 }
 
+                // 生成特质描述
                 let traitDescription = '';
                 if (maxCount > 1) {
                     traitDescription = '您是一个多面手，身上融合了多种特质。您既能与人愉快合作，又能高效完成任务；既懂情绪，又有创意。这种复合型人格让您在复杂环境中游刃有余。';
@@ -549,6 +546,7 @@ window.onload = function() {
                     traitDescription = combos[key] || `您的${maxLabel}特质最突出，同时${secondLabel}能力也很强，这让您在多数场景下都能找到自己的位置。`;
                 }
 
+                // 生成成长建议
                 let growthAdvice = '';
                 if (maxCount > 1) {
                     growthAdvice = '• 尝试将您的复合能力聚焦到一个具体领域（如用“社交+创意”做社群裂变活动）<br>• 每年学习一个与您现有能力差异较大的新技能（比如数据分析），让复合优势更立体';
@@ -562,6 +560,7 @@ window.onload = function() {
                     growthAdvice = adviceMap[maxType] || '• 找到您最享受的事，每天投入30分钟深耕<br>• 定期复盘自己的进步，哪怕很小，也要记录下来';
                 }
 
+                // 生成发展方向
                 let futureDirection = '';
                 if (maxCount > 1) {
                     futureDirection = '您是AI时代最稀缺的“π型人才”，适合探索多领域交叉地带，比如：AI产品经理、数字策展人、人机协作培训师。';
@@ -575,6 +574,7 @@ window.onload = function() {
                     futureDirection = futureMap[maxType] || '找到您的热爱，深耕下去，成为该领域不可替代的人。';
                 }
 
+                // 随机名言
                 const quotes = [
                     '你不需要成为别人，你只需要成为更好的自己。',
                     '成长不是和别人比，而是今天的自己比昨天多懂了一点点。',
@@ -584,6 +584,7 @@ window.onload = function() {
                 ];
                 const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
+                // 拼接结果页面HTML
                 let html = `
                     <div class="page-icon">📊</div>
                     <div class="title-main">你的机器人人格·深度解析</div>
@@ -627,10 +628,12 @@ window.onload = function() {
                 app.innerHTML = html;
             }
 
+            // 点击事件处理
             function handleClick(e) {
                 const target = e.target.closest('button');
                 if (!target) return;
 
+                // 重新测试按钮
                 if (target.id === 'restartBtn') {
                     currentIndex = 0;
                     scores = { social: 0, task: 0, emotion: 0, creativity: 0 };
@@ -638,24 +641,19 @@ window.onload = function() {
                     return;
                 }
 
+                // 选项按钮
                 if (target.classList.contains('option-btn')) {
                     const type = target.dataset.type;
                     if (!type) return;
 
-                    if (currentIndex < questions.length) {
-                        scores[type] += 1;
-
-                        if (currentIndex === questions.length - 1) {
-                            currentIndex = 20;
-                            render();
-                        } else {
-                            currentIndex++;
-                            render();
-                        }
-                    }
+                    // 加分并进入下一题
+                    scores[type] += 1;
+                    currentIndex++;
+                    render();
                 }
             }
 
+            // 绑定事件监听并初始化渲染
             app.addEventListener('click', handleClick);
             render();
         })();
