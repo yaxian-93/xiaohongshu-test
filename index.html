@@ -1,840 +1,593 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>2026 AI机器人人格测试 · 可返回修改</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>🤖 机器人人格测试 · 寻泊好运社</title>
     <style>
-        /* ---------- 原有样式（保持不变） ---------- */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            margin: 0;
+            font-family: 'PingFang SC', 'Helvetica Neue', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: linear-gradient(165deg, #fce7f0 0%, #fff2f7 100%);
             min-height: 100vh;
-            background: url('https://s41.ax1x.com/2026/03/18/peeHHGd.jpg') no-repeat center center fixed;
-            background-size: cover;
-            font-family: 'Segoe UI', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 12px;
-            position: relative;
+            padding: 16px 12px 20px;
+            color: #39252c;
         }
 
-        #app {
+        .main-card {
+            max-width: 420px;
             width: 100%;
-            max-width: 380px;
-            margin: 0 auto;
-            background-color: rgba(255, 250, 245, 0.88);
-            backdrop-filter: blur(2px);
-            border-radius: 36px;
-            box-shadow: 0 20px 40px rgba(244, 114, 182, 0.2), 0 6px 12px rgba(0,0,0,0.08);
-            padding: 24px 20px 28px;
-            border: 1px solid rgba(255, 209, 223, 0.5);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 44px 44px 34px 34px;
+            box-shadow: 0 30px 45px -15px rgba(240, 130, 160, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 210, 225, 0.7);
+            margin-bottom: 16px;
         }
 
-        .page-icon {
-            font-size: 40px;
+        .content-pane {
+            padding: 30px 22px 38px;
+        }
+
+        /* 锁屏界面 */
+        #lockScreen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .lock-icon {
+            font-size: 70px;
+            filter: drop-shadow(0 10px 15px rgba(255, 130, 170, 0.4));
+            animation: wobble 3s infinite ease-in-out;
+        }
+
+        @keyframes wobble {
+            0%,100%{ transform: rotate(0deg) translateY(0); }
+            25%{ transform: rotate(4deg) translateY(-5px); }
+            75%{ transform: rotate(-4deg) translateY(-3px); }
+        }
+
+        .lock-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #ff80a5, #ff4f79);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+
+        .lock-sub {
+            background: #ffe7f0;
+            padding: 8px 28px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            color: #bc4e73;
+            font-weight: 400;
+            border: 1px solid #ffc0d0;
+        }
+
+        .password-input {
+            width: 70%;
+            padding: 18px 25px;
+            font-size: 1.8rem;
             text-align: center;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 6px #fbcfe8);
-        }
-
-        .title-main {
-            font-size: 22px;
+            border: 3px solid #ffb7cd;
+            border-radius: 60px;
+            background: white;
+            outline: none;
+            letter-spacing: 8px;
             font-weight: 600;
-            color: #b13e6b;
-            text-align: center;
-            letter-spacing: 0.5px;
-            margin-bottom: 4px;
-            background: linear-gradient(135deg, #f472b6, #fb7185);
+            color: #39252c;
+        }
+
+        .password-input:focus {
+            border-color: #ff739b;
+            box-shadow: 0 0 0 5px rgba(255, 120, 170, 0.2);
+        }
+
+        .unlock-btn {
+            background: #ff8eb0;
+            border: none;
+            color: white;
+            font-size: 1.6rem;
+            font-weight: 700;
+            padding: 16px 50px;
+            border-radius: 60px;
+            box-shadow: 0 20px 30px -10px #ff99b5;
+            cursor: pointer;
+            transition: 0.1s;
+            border: 1px solid #ffdae5;
+        }
+
+        .unlock-btn:active { transform: scale(0.95); background: #ff6f98; }
+
+        .error-msg {
+            color: #c72e62;
+            font-weight: 600;
+            min-height: 28px;
+        }
+
+        /* 测试主区 */
+        #testContent {
+            display: none;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .brand {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #ff6392, #ff3865);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .sub-progress {
-            text-align: center;
-            font-size: 15px;
-            color: #f9a8d4;
-            font-weight: 400;
-            margin-bottom: 16px;
-            background: rgba(255, 255, 255, 0.7);
-            display: inline-block;
-            padding: 4px 16px;
+        .q-counter {
+            background: #ffeaf2;
             border-radius: 40px;
-            margin-left: auto;
-            margin-right: auto;
-            width: fit-content;
-            backdrop-filter: blur(2px);
-            border: 1px solid #ffe4f0;
+            padding: 6px 20px;
+            font-weight: 600;
+            color: #a13b5b;
+            border: 1px solid #ffbed2;
         }
 
-        .question-box {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 32px;
-            padding: 20px 16px;
-            margin: 12px 0 18px;
-            box-shadow: 0 10px 20px #ffd9e8, inset 0 1px 4px white;
-            border: 1px solid #ffffff;
+        .question-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            border-radius: 38px;
+            padding: 30px 18px 25px;
+            margin: 15px 0 20px;
+            border: 1px solid #ffe2ed;
+            box-shadow: 0 15px 30px -12px #feb0c2;
         }
 
         .question-text {
-            font-size: 20px;
-            font-weight: 580;
-            line-height: 1.4;
-            color: #4a2c3a;
-            margin-bottom: 24px;
-            padding-left: 8px;
-            border-left: 6px solid #f9a8d4;
-            padding-left: 16px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: #342026;
+            margin-bottom: 35px;
+            padding: 0 5px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .option-btn {
-            display: block;
-            width: 100%;
-            text-align: left;
-            background: #fff2f7;
-            border: 2px solid #ffe2ed;
-            border-radius: 60px;
+            background: white;
+            border: 2px solid #ffc2d3;
+            border-radius: 50px;
             padding: 16px 20px;
-            margin-bottom: 12px;
-            font-size: 17px;
-            color: #5a3f4b;
-            font-weight: 480;
-            transition: all 0.15s;
-            box-shadow: 0 4px 8px #ffd9e4;
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #402830;
+            display: flex;
+            align-items: center;
+            gap: 15px;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            line-height: 1.3;
-            letter-spacing: 0.3px;
+            transition: 0.08s;
+            box-shadow: 0 4px 8px #fee0ec;
         }
 
         .option-btn:active {
-            background: #ffe2ed;
-            border-color: #f9a8d4;
-            transform: scale(0.98);
-            box-shadow: 0 2px 4px #f9a8d4;
-        }
-
-        /* 新增：已选中选项的高亮样式 */
-        .option-btn.selected {
-            background: #fbc1d8;
-            border-color: #f9a8d4;
-            box-shadow: 0 4px 8px #f9a8d4;
-        }
-
-        .result-box {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
-            border-radius: 36px;
-            padding: 24px 18px;
-            margin: 12px 0 20px;
-            border: 1px solid #ffe2f0;
-        }
-
-        .result-title {
-            font-size: 30px;
-            font-weight: 700;
-            color: #b13e6b;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .result-desc {
-            font-size: 17px;
-            color: #3f2e37;
-            line-height: 1.6;
-            background: #fff0f7;
-            padding: 18px 16px;
-            border-radius: 24px;
-            margin: 16px 0 8px;
-            border: 1px dashed #f9a8d4;
-        }
-
-        .score-board {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
             background: #ffeef5;
-            border-radius: 48px;
-            padding: 15px 5px;
-            margin: 18px 0 10px;
+            border-color: #ff7aa5;
+            transform: scale(0.98);
         }
 
-        .score-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 55px;
-        }
-
-        .score-label {
-            font-size: 14px;
-            color: #b6587c;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .score-value {
-            font-size: 26px;
-            font-weight: 700;
-            color: #d43f73;
-            background: white;
-            width: 50px;
-            height: 50px;
+        .opt-prefix {
+            width: 44px;
+            height: 44px;
+            background: #ffd4e2;
+            border-radius: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50px;
-            margin-top: 4px;
-            box-shadow: 0 4px 0 #fbcfe8;
-            border: 2px solid white;
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: #bc3d66;
+            flex-shrink: 0;
+        }
+
+        /* 结果卡片 */
+        .result-wrap {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            border-radius: 38px;
+            padding: 28px 22px 32px;
+            margin: 20px 0;
+            border: 1px solid #ffdae8;
+        }
+
+        .result-emojibadge {
+            font-size: 2.2rem;
+            background: #ffe3f0;
+            padding: 10px 22px;
+            border-radius: 60px;
+            display: inline-block;
+            margin-bottom: 20px;
+            border: 1px solid #ffb0c8;
+            font-weight: 700;
+            color: #bb3862;
+        }
+
+        .hit-quote {
+            background: #fff0fa;
+            border-left: 10px solid #ff9bbd;
+            padding: 20px 18px;
+            border-radius: 30px;
+            font-size: 1.25rem;
+            line-height: 1.5;
+            color: #4f2b39;
+            margin: 20px 0;
+            font-style: italic;
+            box-shadow: 0 8px 12px #fddde9;
+        }
+
+        .section {
+            margin: 28px 0;
+        }
+
+        .section h4 {
+            font-size: 1.4rem;
+            color: #ba3f68;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #ffcbd9;
+            padding-bottom: 6px;
+        }
+
+        .section-content {
+            background: #fef7fa;
+            padding: 20px 18px;
+            border-radius: 28px;
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: #39252c;
+            white-space: pre-line;
+        }
+
+        .tagline {
+            background: #feeaf2;
+            border: 2px dashed #ffa7c0;
+            border-radius: 60px;
+            padding: 16px 20px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #b13a62;
+            text-align: center;
+            margin: 30px 0 15px;
         }
 
         .restart-btn {
-            background: linear-gradient(145deg, #f9a8d4, #f472b6);
-            border: none;
-            border-radius: 60px;
-            padding: 18px 24px;
-            width: 100%;
-            font-size: 22px;
-            font-weight: 600;
-            color: white;
-            text-shadow: 0 2px 3px #b13e6b;
-            box-shadow: 0 12px 20px #fbcfe8, 0 4px 0 #b13e6b;
-            margin-top: 16px;
-            margin-bottom: 8px;
-            transition: all 0.1s ease;
-            cursor: pointer;
-            border: 1px solid #ffffff88;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .restart-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 8px 16px #fbcfe8, 0 2px 0 #b13e6b;
-        }
-
-        .footer-note {
-            text-align: center;
-            color: #f5a9c7;
-            font-size: 13px;
-            margin-top: 8px;
-            opacity: 0.8;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .icon-row {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            font-size: 22px;
-            margin: 6px 0 2px;
-        }
-
-        hr {
-            border: 1px solid #ffe0ed;
-            margin: 16px 0 10px;
-            width: 60px;
-            margin-left: auto;
-            margin-right: auto;
-            border-radius: 10px;
-        }
-
-        /* 新增：上一题按钮样式 */
-        .nav-btn {
-            background: #fff2f7;
-            border: 2px solid #ffe2ed;
-            border-radius: 60px;
-            padding: 14px 20px;
-            font-size: 18px;
-            color: #b13e6b;
-            font-weight: 500;
-            box-shadow: 0 4px 8px #ffd9e4;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            transition: all 0.15s;
-        }
-        .nav-btn:active {
-            background: #ffe2ed;
-            transform: scale(0.98);
-        }
-        .nav-btn.hidden {
-            display: none;
-        }
-
-        /* 密码遮罩层样式（原样保留） */
-        #password-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
-        }
-
-        .password-box {
-            background: #fff0f7;
-            padding: 30px 25px;
-            border-radius: 40px;
-            width: 80%;
-            max-width: 320px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(244, 114, 182, 0.3);
-            border: 2px solid white;
-        }
-
-        .password-box h3 {
-            font-size: 24px;
-            color: #b13e6b;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .password-box input {
-            width: 100%;
-            padding: 15px 20px;
-            font-size: 18px;
-            border: 2px solid #f9a8d4;
-            border-radius: 60px;
-            margin-bottom: 20px;
-            outline: none;
             background: white;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-
-        .password-box button {
-            background: linear-gradient(145deg, #f9a8d4, #f472b6);
-            border: none;
+            border: 2px solid #ff9fb8;
+            color: #c0456e;
+            font-size: 1.4rem;
+            font-weight: 700;
+            padding: 16px 0;
             border-radius: 60px;
-            padding: 15px 20px;
             width: 100%;
-            font-size: 20px;
-            font-weight: 600;
-            color: white;
-            text-shadow: 0 2px 3px #b13e6b;
-            box-shadow: 0 8px 15px #fbcfe8;
             cursor: pointer;
-            border: 1px solid #ffffff88;
+            transition: 0.1s;
         }
 
-        .password-box button:active {
-            transform: scale(0.97);
+        .restart-btn:active { background: #ffdae8; }
+
+        /* 底部固定链接 */
+        .footer {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 12px 10px;
+            border: 1px solid #ffcbd9;
         }
 
-        .error-message {
-            color: #e64980;
-            margin-top: 10px;
-            font-size: 16px;
+        .footer a {
+            text-decoration: none;
+            background: #ffe3ee;
+            padding: 8px 30px;
+            border-radius: 50px;
+            color: #b5486e;
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: inline-block;
+            border: 1px solid #ffadc6;
         }
+
+        .footer a:active { background: #ffd0e0; }
+
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <!-- 密码验证遮罩层（原样保留） -->
-    <div id="password-overlay">
-        <div class="password-box">
-            <h3>🔐 请输入测试密码</h3>
-            <input type="password" id="password-input" placeholder="密码" inputmode="numeric">
-            <button id="submit-password">进入测试</button>
-            <div id="password-error" class="error-message"></div>
+    <div class="main-card">
+        <div class="content-pane" id="app">
+            <!-- 锁屏 -->
+            <div id="lockScreen">
+                <div class="lock-icon">🤖🔐</div>
+                <div class="lock-title">机器人人格</div>
+                <div class="lock-sub">付费测试入口</div>
+                <input type="password" id="pwdInput" class="password-input" placeholder="****" inputmode="numeric" maxlength="4">
+                <button class="unlock-btn" id="unlockBtn">解锁</button>
+                <div id="pwdError" class="error-msg"></div>
+            </div>
+
+            <!-- 测试内容 -->
+            <div id="testContent">
+                <div class="test-header">
+                    <span class="brand">🤖 人格代码</span>
+                    <span id="progress" class="q-counter">1/20</span>
+                </div>
+
+                <!-- 题目区 -->
+                <div id="questionPanel">
+                    <div class="question-card">
+                        <div id="question" class="question-text">加载中...</div>
+                        <div id="optionsList" class="options"></div>
+                    </div>
+                </div>
+
+                <!-- 结果区(初始隐藏) -->
+                <div id="resultPanel" style="display: none;"></div>
+            </div>
         </div>
     </div>
 
-    <!-- 原有的测试容器 -->
-    <div id="app"></div>
+    <div class="footer">
+        <a href="https://xhslink.com/m/2KLb5BTIvAj" target="_blank" rel="noopener">✨ 寻泊好运社 ✨</a>
+    </div>
 
     <script>
         (function() {
-            const overlay = document.getElementById('password-overlay');
-            const passwordInput = document.getElementById('password-input');
-            const submitBtn = document.getElementById('submit-password');
-            const errorDiv = document.getElementById('password-error');
+            // 题目数据（20题）
+            const QUESTIONS = [
+                "周末朋友约你出去玩，你的第一反应是？",
+                "在聚会上，你通常：",
+                "遇到困难时，你首先会：",
+                "别人对你的评价，你更希望是：",
+                "如果团队合作，你更擅长：",
+                "接到一个复杂任务，你会：",
+                "你更喜欢哪种工作环境？",
+                "遇到 deadline 逼近，你的状态是：",
+                "你更擅长处理：",
+                "别人眼中你做事的风格：",
+                "当被批评时，你的第一反应是：",
+                "你更容易被什么打动？",
+                "压力大时，你通常：",
+                "你对情绪的态度是：",
+                "朋友失恋了，你会：",
+                "学习新东西时，你更喜欢：",
+                "对于新鲜事物，你的态度是：",
+                "你更容易记住：",
+                "旅行时，你更喜欢：",
+                "理想的生活是："
+            ];
 
-            // 密码验证成功后的主函数
-            function startTest() {
-                overlay.style.display = 'none';
+            // 每个选项对应的维度 (A:社交 B:任务 C:情绪 D:创意)
+            const OPTION_TYPE = ['social','task','emotional','creative'];
 
-                // ---------- 题目数据（不变） ----------
-                const questions = [
-                    {
-                        text: "周末朋友约你出去玩，你的第一反应是？",
-                        options: [
-                            { text: "A. 马上答应，甚至开始规划路线", type: "social" },
-                            { text: "B. 先问清楚去哪、几个人、几点回", type: "task" },
-                            { text: "C. 表示要考虑一下，其实想宅家", type: "emotion" },
-                            { text: "D. 直接拒绝，已经安排了独处时间", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "在聚会上，你通常：",
-                        options: [
-                            { text: "A. 主动和陌生人聊天，活跃气氛", type: "social" },
-                            { text: "B. 和熟悉的人聊，但会观察全场", type: "task" },
-                            { text: "C. 安静待在角落，等别人来找你", type: "emotion" },
-                            { text: "D. 找个有趣的事自己玩（比如拍照）", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "遇到困难时，你首先会：",
-                        options: [
-                            { text: "A. 找朋友倾诉或求助", type: "social" },
-                            { text: "B. 自己分析原因，列解决方案", type: "task" },
-                            { text: "C. 情绪低落，需要缓一缓", type: "emotion" },
-                            { text: "D. 换个角度想，也许有新思路", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "别人对你的评价，你更希望是：",
-                        options: [
-                            { text: "A. 人缘好，会来事", type: "social" },
-                            { text: "B. 靠谱，做事让人放心", type: "task" },
-                            { text: "C. 善解人意，温柔体贴", type: "emotion" },
-                            { text: "D. 有想法，与众不同", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "如果团队合作，你更擅长：",
-                        options: [
-                            { text: "A. 协调沟通，让大家达成一致", type: "social" },
-                            { text: "B. 制定计划，分配任务", type: "task" },
-                            { text: "C. 体察成员情绪，缓和气氛", type: "emotion" },
-                            { text: "D. 提出新点子，打破僵局", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "接到一个复杂任务，你会：",
-                        options: [
-                            { text: "A. 先拉个群，大家一起商量", type: "social" },
-                            { text: "B. 列清单，分步骤执行", type: "task" },
-                            { text: "C. 感觉压力大，但会逼自己开始", type: "emotion" },
-                            { text: "D. 想有没有更简单的办法", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "你更喜欢哪种工作环境？",
-                        options: [
-                            { text: "A. 开放式工位，随时交流", type: "social" },
-                            { text: "B. 安静独立，专注做事", type: "task" },
-                            { text: "C. 温馨舒适，有放松区", type: "emotion" },
-                            { text: "D. 自由灵活，可以随意布置", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "遇到 deadline 逼近，你的状态是：",
-                        options: [
-                            { text: "A. 找人一起加班，互相打气", type: "social" },
-                            { text: "B. 高效冲刺，按计划完成", type: "task" },
-                            { text: "C. 焦虑到失眠，但咬牙坚持", type: "emotion" },
-                            { text: "D. 临时想出新方法，加速搞定", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "你更擅长处理：",
-                        options: [
-                            { text: "A. 人际关系问题", type: "social" },
-                            { text: "B. 逻辑流程问题", type: "task" },
-                            { text: "C. 情感心理问题", type: "emotion" },
-                            { text: "D. 创意设计问题", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "别人眼中你做事的风格：",
-                        options: [
-                            { text: "A. 风风火火，喜欢合作", type: "social" },
-                            { text: "B. 井井有条，从不拖延", type: "task" },
-                            { text: "C. 认真细致，但容易纠结", type: "emotion" },
-                            { text: "D. 天马行空，不按常理出牌", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "当被批评时，你的第一反应是：",
-                        options: [
-                            { text: "A. 找朋友吐槽，寻求安慰", type: "social" },
-                            { text: "B. 分析对错，下次改进", type: "task" },
-                            { text: "C. 难受很久，自我怀疑", type: "emotion" },
-                            { text: "D. 觉得对方不懂我，无所谓", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "你更容易被什么打动？",
-                        options: [
-                            { text: "A. 朋友的陪伴和支持", type: "social" },
-                            { text: "B. 事情圆满完成的结果", type: "task" },
-                            { text: "C. 细腻的情感表达（电影、音乐）", type: "emotion" },
-                            { text: "D. 独特的创意或作品", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "压力大时，你通常：",
-                        options: [
-                            { text: "A. 约朋友吃饭唱歌", type: "social" },
-                            { text: "B. 运动、做家务、列计划", type: "task" },
-                            { text: "C. 一个人待着，听歌写日记", type: "emotion" },
-                            { text: "D. 做点平时不做的奇怪事", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "你对情绪的态度是：",
-                        options: [
-                            { text: "A. 情绪应该和大家分享", type: "social" },
-                            { text: "B. 情绪会影响效率，要控制", type: "task" },
-                            { text: "C. 情绪很重要，要认真对待", type: "emotion" },
-                            { text: "D. 情绪是创作的源泉", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "朋友失恋了，你会：",
-                        options: [
-                            { text: "A. 拉他出来玩，让他开心起来", type: "social" },
-                            { text: "B. 帮他分析原因，给建议", type: "task" },
-                            { text: "C. 耐心倾听，陪他一起难过", type: "emotion" },
-                            { text: "D. 陪他做点疯狂的事发泄", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "学习新东西时，你更喜欢：",
-                        options: [
-                            { text: "A. 报班和同学一起学", type: "social" },
-                            { text: "B. 按教程一步步来", type: "task" },
-                            { text: "C. 慢慢摸索，感受过程", type: "emotion" },
-                            { text: "D. 自己瞎折腾，发现新玩法", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "对于新鲜事物，你的态度是：",
-                        options: [
-                            { text: "A. 和朋友一起尝试才有意思", type: "social" },
-                            { text: "B. 评估是否有用再决定", type: "task" },
-                            { text: "C. 看心情，感觉对了就试", type: "emotion" },
-                            { text: "D. 必须试试，万一好玩呢", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "你更容易记住：",
-                        options: [
-                            { text: "A. 谁说了什么话", type: "social" },
-                            { text: "B. 事情的时间地点", type: "task" },
-                            { text: "C. 当时的感受和氛围", type: "emotion" },
-                            { text: "D. 独特的画面和点子", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "旅行时，你更喜欢：",
-                        options: [
-                            { text: "A. 和当地人聊天，交朋友", type: "social" },
-                            { text: "B. 按攻略打卡景点", type: "task" },
-                            { text: "C. 找个喜欢的地方发呆", type: "emotion" },
-                            { text: "D. 探索小众路线，发现惊喜", type: "creativity" }
-                        ]
-                    },
-                    {
-                        text: "理想的生活是：",
-                        options: [
-                            { text: "A. 朋友环绕，热热闹闹", type: "social" },
-                            { text: "B. 事业有成，有条不紊", type: "task" },
-                            { text: "C. 内心平静，情感满足", type: "emotion" },
-                            { text: "D. 充满创意，每天新鲜", type: "creativity" }
-                        ]
-                    }
-                ];
-
-                // 当前题号索引（0~19, 20表示结果页）
-                let currentIndex = 0;
-                // 分数统计
-                let scores = {
-                    social: 0,
-                    task: 0,
-                    emotion: 0,
-                    creativity: 0
-                };
-                // 记录每道题所选类型（用于高亮和返回修改）
-                let selectedTypes = new Array(questions.length).fill(null);
-
-                const app = document.getElementById('app');
-
-                // 渲染函数：根据 currentIndex 显示题目页或结果页
-                function render() {
-                    if (currentIndex < questions.length) {
-                        renderQuestion(currentIndex);
-                    } else {
-                        renderResult();
-                    }
+            // ---------- 深度优化版结果文案(含金句+细节) ----------
+            const RESULT = {
+                social: {
+                    title: '社交型机器人 🤝',
+                    hit: '朋友找你吐槽，你比他还生气——因为你把别人的事当成了自己的事。聚会时你总在照顾角落那个不说话的人，自己却很少被照顾。',
+                    core: '你是人群中的“社交枢纽”。你的能量来自人与人之间的连接，你天生懂得如何让场子热起来、让沉默的人开口、让冲突缓和。在团队里，你不是最耀眼的那个，但你是大家愿意靠近的那个。',
+                    mindset: '你习惯通过“和人聊”来思考问题。遇到困难，你的第一反应是找人倾诉、征求意见。你相信“三个臭皮匠顶个诸葛亮”，也因此在不知不觉中积累了丰富的人脉资源。',
+                    strength: '共情力强：你能快速感知别人的情绪，给出恰到好处的回应\n连接力强：你认识的人和认识你的人，都愿意为你提供帮助\n氛围感强：有你在的场合，大家更放松、更愿意表达',
+                    blind: '容易过度社交：有时为了合群，牺牲了自己的独处时间\n深度思考不足：习惯听别人意见，反而忘了自己想要什么\n容易被情绪消耗：吸收太多别人的情绪，自己反而疲惫',
+                    era: 'AI能处理数据，但处理不了人心。你能读懂潜台词、安抚情绪、建立信任——这些是AI永远学不会的。你是人机协作时代最好的“情感接口”。',
+                    advice: '1. 每周留半天“社交斋戒”：关掉消息通知，一个人看书、散步、写日记。这不是孤僻，是充电。\n2. 把你的社交圈变成“资源地图”：花1小时梳理你认识的人，谁懂什么、能帮什么。你不只是在交朋友，你是在建立网络。\n3. 让AI帮你社交：用AI整理聊天记录、提醒你朋友的生日、帮你写节日祝福——把琐事交给AI，把真心留给人。',
+                    tag: 'AI负责计算，我负责连接 🤖'
+                },
+                task: {
+                    title: '任务型机器人 📋',
+                    hit: '你的备忘录里永远有至少三个待办清单，划掉一项的快感，比发工资还爽。别人觉得你活得累，你却觉得一切尽在掌控的感觉真好。',
+                    core: '你是人群中的“定海神针”。你的世界由清单、截止日期和完成度组成。你靠谱、稳定、让人放心——交给你的任务，大家默认“没问题”。你不是最快的，但你是最稳的。',
+                    mindset: '你习惯“先拆解，再执行”。任何复杂任务到你手里，都会被拆成12345步。你喜欢掌控感，讨厌失控。你相信“凡事预则立”，也因此成为团队里最值得信赖的人。',
+                    strength: '执行力强：一旦决定，就会按计划推进到底\n靠谱度高：你说到做到，极少掉链子\n逻辑清晰：再乱的事情到你手里，都能理出头绪',
+                    blind: '容易陷入细节：有时为了“按计划走”，错过更好的可能性\n灵活性不足：对突发变化适应慢，容易焦虑\n忽略人情味：太关注事，有时忽略人的感受',
+                    era: 'AI能执行指令，但无法像你一样“主动负责”。你能统筹全局、协调资源、对结果兜底——这种主人翁意识，是AI替代不了的。',
+                    advice: '1. 学会“留白式计划”：你的计划表里，永远留20%的空档，给意外和灵感。完美主义是效率的天敌。\n2. 把重复性工作交给AI：数据整理、进度跟踪、邮件回复——让AI帮你做，你腾出时间做真正需要人的决策。\n3. 每周找一个“无任务时段”：半天时间，不做计划、不赶截止日期，纯粹体验“活在当下”。',
+                    tag: '把无序变有序，是我的超能力 📊'
+                },
+                emotional: {
+                    title: '情绪型机器人 💭',
+                    hit: '你看电影时，朋友哭完了你还在哭，因为你哭的不是剧情，是角色没说出口的孤独。对方刚开口，你已经知道他要说什么——不是因为你聪明，是因为你一直在感受他的情绪。',
+                    core: '你是人群中的“情绪雷达”。你能察觉别人忽略的细节：语气的变化、眼神的躲闪、欲言又止的停顿。你细腻、敏感、共情力强，是朋友眼中的“疗愈者”。',
+                    mindset: '你习惯“先感受，后思考”。你做决定时，重要的不只是逻辑，更是“感觉对不对”。你相信直觉，也常常被直觉拯救。你容易沉浸在一部电影、一首歌、一段回忆里，因为情绪是你的养分。',
+                    strength: '洞察力强：你能看到别人没说的需求，听到别人没说的声音\n疗愈力强：和你聊天，对方会觉得“被理解了”\n创造力强：情绪是你的创作源泉，文字、画面、表达都因情绪而有温度',
+                    blind: '容易过度共情：别人的情绪会变成你的负担\n边界感弱：有时分不清“他的事”和“我的事”\n决策效率低：太在乎感受，有时错过时机',
+                    era: 'AI能分析情绪，但无法“感受情绪”。你能真正理解一个人的痛苦、喜悦、孤独——这种深度连接，是AI永远无法复制的。你是人类最后的“情感守护者”。',
+                    advice: '1. 建立“情绪隔离带”：每天睡前15分钟，把今天的情绪“归档”——哪些是我的，哪些是别人的。学会放下，才能轻装上阵。\n2. 把你的敏感变成创作：把你的感受写成文字、画成画、做成视频。敏感是天赋，不是负担。\n3. 让AI帮你处理“情感杂务”：用AI帮你回复那些“需要礼貌但不需要真心”的消息，把精力留给真正重要的人。',
+                    tag: '我感受的，比看到的更深 💞'
+                },
+                creative: {
+                    title: '创意型机器人 🎨',
+                    hit: '你洗澡时灵感最多，因为那是你唯一不被手机打扰的时刻。朋友说你“脑洞大”，其实是你的世界从来不受边框限制。',
+                    core: '你是人群中的“灵感喷泉”。你的脑子里永远有奇怪的想法：如果这样会怎样？为什么不试试那个？你讨厌重复，追求新鲜，是天生的破局者。在别人看来的问题，在你眼里可能是机会。',
+                    mindset: '你习惯“跳跃式思考”。你的想法不是线性生长的，而是四处迸发的。你相信“万物皆有联系”，也因此总能发现别人看不到的可能性。你对“无聊”的容忍度极低，对新事物的好奇心极强。',
+                    strength: '创新力强：你总能有与众不同的想法\n适应力强：你对变化接受度高，甚至享受变化\n连接力强：你能把不相关的概念连接成新东西',
+                    blind: '容易半途而废：想法太多，落地太少\n执行力不足：享受“想出来”的快感，抗拒“做出来”的枯燥\n忽视细节：觉得差不多就行，结果常常差很多',
+                    era: 'AI能模仿创意，但无法“创造创意”。你能从无到有、从0到1、从混沌中发现秩序——这种原创力，是AI永远无法替代的。你是人类进化的“创新引擎”。',
+                    advice: '1. 找到你的“执行搭子”：找一个任务型人格的朋友，或者用AI帮你落地。你的想法+别人的执行=奇迹。\n2. 建立“灵感捕捉系统”：随时随地记录你的想法（用手机备忘录、语音输入、AI笔记）。灵感稍纵即逝，抓住它。\n3. 每周做一次“无聊练习”：强制自己1小时不做任何新鲜事，只是重复。这会让你更珍惜创意的价值。',
+                    tag: '想别人不敢想的，做别人没做过的 ✨'
+                },
+                mixed: {
+                    title: '混合型机器人 🔀',
+                    hit: '你有时自己都搞不懂自己：可以嗨翻全场，也能安静一天；能把计划做得滴水不漏，也会突然来一场说走就走的旅行。',
+                    core: '你是“全能混合型机器人”！你身上融合了多种特质，没有单一标签能定义你。这种复合型人格让你在复杂环境中游刃有余。你既可以社交，也能执行；既懂情绪，又会创意。你是AI时代最稀缺的“π型人才”。',
+                    mindset: '',
+                    strength: '',
+                    blind: '',
+                    era: '',
+                    advice: '试着把你身上的多种特质都发挥出来：社交、执行、情绪、创意——在不同场景调用不同模式，你就是为复杂世界而生的多面手。',
+                    tag: '不被定义，正是我的定义 🔥'
                 }
+            };
 
-                // 渲染题目
-                function renderQuestion(index) {
-                    const q = questions[index];
-                    const progress = `${index+1} / ${questions.length}`;
-                    const icon = index % 2 === 0 ? '🤖' : '🧸';
+            // 当前状态
+            let currentIndex = 0;
+            let scores = { social:0, task:0, emotional:0, creative:0 };
+            let testFinished = false;
 
-                    let optionsHtml = '';
-                    q.options.forEach((opt, optIndex) => {
-                        let face = '';
-                        if (opt.type === 'social') face = '👥';
-                        else if (opt.type === 'task') face = '📋';
-                        else if (opt.type === 'emotion') face = '💖';
-                        else if (opt.type === 'creativity') face = '✨';
+            // DOM
+            const lockDiv = document.getElementById('lockScreen');
+            const testDiv = document.getElementById('testContent');
+            const pwdInput = document.getElementById('pwdInput');
+            const unlockBtn = document.getElementById('unlockBtn');
+            const pwdError = document.getElementById('pwdError');
+            const progressSpan = document.getElementById('progress');
+            const questionDiv = document.getElementById('question');
+            const optionsDiv = document.getElementById('optionsList');
+            const questionPanel = document.getElementById('questionPanel');
+            const resultPanel = document.getElementById('resultPanel');
 
-                        // 判断该选项是否已被选中，添加高亮类
-                        const selectedClass = (selectedTypes[index] === opt.type) ? 'selected' : '';
-
-                        optionsHtml += `
-                            <button class="option-btn ${selectedClass}" data-type="${opt.type}" data-index="${index}">
-                                ${face} ${opt.text}
-                            </button>
-                        `;
-                    });
-
-                    // 上一题按钮：第一题隐藏
-                    const prevBtnClass = (index === 0) ? 'hidden' : '';
-
-                    let html = `
-                        <div class="page-icon">${icon}</div>
-                        <div class="title-main">AI人格测试</div>
-                        <div class="sub-progress">✨ 问题 ${progress}</div>
-                        <div class="question-box">
-                            <div class="question-text">${q.text}</div>
-                            <div class="options-container">
-                                ${optionsHtml}
-                            </div>
-                            <button class="nav-btn ${prevBtnClass}" id="prev-btn">⬅️ 上一题</button>
-                        </div>
-                        <hr>
-                        <div class="icon-row">💭 可点击上一题修改答案</div>
-                        <div class="footer-note">点选选项后自动进入下一题</div>
-                    `;
-
-                    app.innerHTML = html;
+            // 密码验证
+            unlockBtn.addEventListener('click', ()=>{
+                if(pwdInput.value === '3322') {
+                    lockDiv.style.display = 'none';
+                    testDiv.style.display = 'block';
+                    resetTest();
+                } else {
+                    pwdError.innerText = '密码错误，再试试～';
+                    pwdInput.value = '';
                 }
+            });
+            pwdInput.addEventListener('keypress', (e)=> { if(e.key === 'Enter') unlockBtn.click(); });
 
-                // 渲染结果页（完全沿用之前五维深度解析）
-                function renderResult() {
-                    let selfGrowth = Math.round((scores.social + scores.task + scores.emotion + scores.creativity) / 4 * 1.2);
-                    if (selfGrowth > 20) selfGrowth = 20;
-
-                    const typeNames = ['social', 'task', 'emotion', 'creativity'];
-                    const typeLabels = ['社交', '任务', '情绪', '创意'];
-                    const values = [scores.social, scores.task, scores.emotion, scores.creativity];
-
-                    const sorted = [...values].sort((a, b) => b - a);
-                    const maxVal = sorted[0];
-                    const secondVal = sorted[1];
-                    const maxIndex = values.indexOf(maxVal);
-                    const secondIndex = values.indexOf(secondVal);
-                    const maxType = typeNames[maxIndex];
-                    const secondType = typeNames[secondIndex];
-                    const maxLabel = typeLabels[maxIndex];
-                    const secondLabel = typeLabels[secondIndex];
-
-                    const maxCount = values.filter(v => v === maxVal).length;
-
-                    let resultTitle = '';
-                    if (maxCount > 1) {
-                        resultTitle = '🤖 全能混合型机器人';
-                    } else {
-                        switch (maxType) {
-                            case 'social': resultTitle = '🤖 社交型机器人'; break;
-                            case 'task': resultTitle = '🤖 高效执行型机器人'; break;
-                            case 'emotion': resultTitle = '🤖 情感感知型机器人'; break;
-                            case 'creativity': resultTitle = '🤖 脑洞大开型机器人'; break;
-                        }
-                    }
-
-                    let traitDescription = '';
-                    if (maxCount > 1) {
-                        traitDescription = '您是一个多面手，身上融合了多种特质。您既能与人愉快合作，又能高效完成任务；既懂情绪，又有创意。这种复合型人格让您在复杂环境中游刃有余。';
-                    } else {
-                        const combos = {
-                            'social_task': '您是典型的“组织者”：善于调动人际资源，又能高效执行。您总能让人心甘情愿配合您，同时把事办得妥帖。',
-                            'social_emotion': '您是温暖的“疗愈者”：您天生能察觉他人情绪，并用亲和力化解矛盾。朋友都爱找您倾诉，因为您既懂倾听，又能给出温暖回应。',
-                            'social_creativity': '您是闪光的“引爆者”：您擅长用创意点燃人群，总能想出新奇的点子让大家眼前一亮。聚会中有您，永远不会冷场。',
-                            'task_emotion': '您是细腻的“守护者”：做事靠谱，同时又很在意他人感受。您会在 deadline 前默默帮同事分担压力，是团队里最让人安心的存在。',
-                            'task_creativity': '您是冷静的“发明家”：既有条理又有灵感，能把天马行空的想法落地成可执行的方案。您擅长把创意变成产品。',
-                            'emotion_creativity': '您是梦幻的“艺术家”：您的情感是您创意的源泉。您能创作出打动人心的作品，因为您把自己的感受和想象都倾注其中。',
-                        };
-                        const key = maxType + '_' + secondType;
-                        traitDescription = combos[key] || `您的${maxLabel}特质最突出，同时${secondLabel}能力也很强，这让您在多数场景下都能找到自己的位置。`;
-                    }
-
-                    let growthAdvice = '';
-                    if (maxCount > 1) {
-                        growthAdvice = '• 尝试将您的复合能力聚焦到一个具体领域（如用“社交+创意”做社群裂变活动）<br>• 每年学习一个与您现有能力差异较大的新技能（比如数据分析），让复合优势更立体';
-                    } else {
-                        const adviceMap = {
-                            'social': '• 每周主动认识一位新朋友，但也要留出独处时间消化思考<br>• 尝试把社交经验写成小技巧，分享出去，您会发现影响力在扩大',
-                            'task': '• 接受计划被打乱，每周留出20%时间处理“意外”<br>• 主动承担需要跨部门协调的任务，锻炼统筹能力',
-                            'emotion': '• 用日记记录情绪变化，找到触发点和应对方式<br>• 尝试通过艺术表达（画画/写诗/音乐）转化您细腻的感受',
-                            'creativity': '• 每天记录三个“疯狂想法”，不评判可行性<br>• 找一个执行型伙伴合作，让您的点子有机会落地',
-                        };
-                        growthAdvice = adviceMap[maxType] || '• 找到您最享受的事，每天投入30分钟深耕<br>• 定期复盘自己的进步，哪怕很小，也要记录下来';
-                    }
-
-                    let futureDirection = '';
-                    if (maxCount > 1) {
-                        futureDirection = '您是AI时代最稀缺的“π型人才”，适合探索多领域交叉地带，比如：AI产品经理、数字策展人、人机协作培训师。';
-                    } else {
-                        const futureMap = {
-                            'social': '您的共情能力是AI无法替代的，适合向“社群运营专家”“用户洞察顾问”发展，用您的连接力放大AI的效率。',
-                            'task': 'AI能帮您处理数据，您将进化为“超级个体”，适合做“自动化流程设计师”“AI训练师”，让工具为您所用。',
-                            'emotion': '在机器越来越像人的时代，您这种“真实情感”变得格外珍贵，适合做“心理疗愈师”“情感化设计师”，用您的感受力创造温暖。',
-                            'creativity': 'AI可以模仿，但无法真正创造。您适合做“创意导演”“跨领域创新者”，把不同领域的元素重新组合。',
-                        };
-                        futureDirection = futureMap[maxType] || '找到您的热爱，深耕下去，成为该领域不可替代的人。';
-                    }
-
-                    const quotes = [
-                        '你不需要成为别人，你只需要成为更好的自己。',
-                        '成长不是和别人比，而是今天的自己比昨天多懂了一点点。',
-                        '你的特质就是你的超能力，好好使用它。',
-                        'AI时代，最稀缺的不是技能，而是你独有的温度。',
-                        '你走的每一步都算数，即使暂时看不见，也在扎根。',
-                    ];
-                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-                    let html = `
-                        <div class="page-icon">📊</div>
-                        <div class="title-main">你的机器人人格·深度解析</div>
-                        <div class="result-box">
-                            <div class="result-title">${resultTitle}</div>
-                            
-                            <div class="score-board">
-                                <div class="score-item"><span class="score-label">👥 社交</span><span class="score-value">${scores.social}</span></div>
-                                <div class="score-item"><span class="score-label">📋 任务</span><span class="score-value">${scores.task}</span></div>
-                                <div class="score-item"><span class="score-label">💖 情绪</span><span class="score-value">${scores.emotion}</span></div>
-                                <div class="score-item"><span class="score-label">✨ 创意</span><span class="score-value">${scores.creativity}</span></div>
-                                <div class="score-item"><span class="score-label">🌱 成长</span><span class="score-value">${selfGrowth}</span></div>
-                            </div>
-                            
-                            <div class="result-desc" style="margin-top:0;">
-                                <strong>✨ 你的特质画像</strong><br>
-                                ${traitDescription}
-                            </div>
-                            
-                            <div class="result-desc" style="background:#f0f7ff; border-color:#a0c8f0;">
-                                <strong>🌱 自我成长指南</strong><br>
-                                ${growthAdvice}
-                            </div>
-                            
-                            <div class="result-desc" style="background:#fff0fa; border-color:#f0a0d0;">
-                                <strong>🚀 AI时代发展方向</strong><br>
-                                ${futureDirection}
-                            </div>
-                            
-                            <div style="text-align:center; font-size:18px; font-weight:500; color:#b13e6b; margin:20px 0 10px;">
-                                💬 ${randomQuote}
-                            </div>
-                            
-                            <button class="restart-btn" id="restartBtn">
-                                🔄 重新测试
-                            </button>
-                        </div>
-                        <div class="footer-note">❤️ 你的每一次测试，都是一次自我发现</div>
-                    `;
-
-                    app.innerHTML = html;
-                }
-
-                // 处理所有按钮点击（包括选项、上一题、重新测试）
-                function handleClick(e) {
-                    const target = e.target.closest('button');
-                    if (!target) return;
-
-                    // 重新测试按钮（位于结果页）
-                    if (target.id === 'restartBtn') {
-                        // 重置所有状态
-                        currentIndex = 0;
-                        scores = { social: 0, task: 0, emotion: 0, creativity: 0 };
-                        selectedTypes = new Array(questions.length).fill(null);
-                        render();
-                        return;
-                    }
-
-                    // 上一题按钮
-                    if (target.id === 'prev-btn') {
-                        if (currentIndex > 0) {
-                            currentIndex--;
-                            render();
-                        }
-                        return;
-                    }
-
-                    // 选项按钮
-                    if (target.classList.contains('option-btn')) {
-                        const type = target.dataset.type;
-                        const index = parseInt(target.dataset.index, 10);
-                        if (type && index === currentIndex) { // 确保是当前题
-                            // 如果当前题之前选过，先从总分中扣除
-                            const previousType = selectedTypes[index];
-                            if (previousType) {
-                                scores[previousType] -= 1;
-                            }
-                            // 加上新选的分数
-                            scores[type] += 1;
-                            // 更新记录
-                            selectedTypes[index] = type;
-
-                            // 跳转到下一题或结果页
-                            if (currentIndex === questions.length - 1) {
-                                currentIndex = 20; // 进入结果页
-                                render();
-                            } else {
-                                currentIndex++;
-                                render();
-                            }
-                        }
-                    }
-                }
-
-                // 监听点击事件
-                app.addEventListener('click', handleClick);
-
-                // 初始渲染
-                render();
+            function resetTest() {
+                currentIndex = 0;
+                scores = { social:0, task:0, emotional:0, creative:0 };
+                testFinished = false;
+                questionPanel.style.display = 'block';
+                resultPanel.style.display = 'none';
+                renderQuestion();
             }
 
-            // 密码验证（与原逻辑一致）
-            submitBtn.addEventListener('click', function() {
-                const password = passwordInput.value.trim();
-                if (password === '3322') {
-                    startTest();
-                } else {
-                    errorDiv.textContent = '密码错误，即将跳转...';
-                    setTimeout(function() {
-                        window.location.href = 'about:blank';
-                    }, 1500);
-                }
-            });
+            function renderQuestion() {
+                if (testFinished) return;
+                progressSpan.innerText = `${currentIndex+1}/${QUESTIONS.length}`;
+                questionDiv.innerText = QUESTIONS[currentIndex];
+                let html = '';
+                ['A','B','C','D'].forEach((letter, idx) => {
+                    let typeName = ['社交型','任务型','情绪型','创意型'][idx];
+                    html += `<div class="option-btn" data-opt="${letter}">
+                        <span class="opt-prefix">${letter}</span>
+                        <span>${typeName}</span>
+                    </div>`;
+                });
+                optionsDiv.innerHTML = html;
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const opt = btn.dataset.opt; // 'A','B','C','D'
+                        const dimap = { 'A':'social', 'B':'task', 'C':'emotional', 'D':'creative' };
+                        scores[dimap[opt]] += 1;
+                        if (currentIndex < QUESTIONS.length-1) {
+                            currentIndex++;
+                            renderQuestion();
+                        } else {
+                            finishTest();
+                        }
+                    });
+                });
+            }
 
-            passwordInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    submitBtn.click();
-                }
-            });
+            function finishTest() {
+                testFinished = true;
+                questionPanel.style.display = 'none';
+                // 计算最终类型
+                const entries = [
+                    { type: 'social', score: scores.social },
+                    { type: 'task', score: scores.task },
+                    { type: 'emotional', score: scores.emotional },
+                    { type: 'creative', score: scores.creative }
+                ];
+                entries.sort((a,b) => b.score - a.score);
+                const topScore = entries[0].score;
+                const topTypes = entries.filter(e => e.score === topScore).map(e => e.type);
+                const key = (topTypes.length > 1) ? 'mixed' : topTypes[0];
+                const res = RESULT[key];
 
-            passwordInput.focus();
+                // 构建华丽结果页
+                let html = `<div class="result-wrap">`;
+                html += `<div class="result-emojibadge">${res.title}</div>`;
+
+                // 金句区 (点睛之笔)
+                if (res.hit) {
+                    html += `<div class="hit-quote">“${res.hit}”</div>`;
+                }
+
+                // 核心特质
+                html += `<div class="section"><h4>✨ 核心特质</h4><div class="section-content">${res.core}</div></div>`;
+
+                // 思维模式 (如果有)
+                if (res.mindset) {
+                    html += `<div class="section"><h4>🧠 思维模式</h4><div class="section-content">${res.mindset}</div></div>`;
+                }
+
+                // 优势
+                if (res.strength) {
+                    html += `<div class="section"><h4>⚡️ 你的优势</h4><div class="section-content" style="white-space:pre-line;">${res.strength}</div></div>`;
+                }
+
+                // 盲区
+                if (res.blind) {
+                    html += `<div class="section"><h4>⚠️ 你的盲区</h4><div class="section-content" style="white-space:pre-line;">${res.blind}</div></div>`;
+                }
+
+                // 时代价值
+                if (res.era) {
+                    html += `<div class="section"><h4>🤖 2026 AI时代</h4><div class="section-content">${res.era}</div></div>`;
+                }
+
+                // 行动建议
+                if (res.advice) {
+                    html += `<div class="section"><h4>💡 行动建议</h4><div class="section-content" style="white-space:pre-line;">${res.advice}</div></div>`;
+                }
+
+                // 专属tag
+                html += `<div class="tagline">${res.tag}</div>`;
+
+                // 重新测试按钮
+                html += `<button class="restart-btn" id="restartBtn">🔄 重新测试</button>`;
+                html += `</div>`;
+
+                resultPanel.innerHTML = html;
+                resultPanel.style.display = 'block';
+                document.getElementById('restartBtn').addEventListener('click', resetTest);
+            }
+
+            // 初始锁屏状态
+            lockDiv.style.display = 'flex';
+            testDiv.style.display = 'none';
         })();
     </script>
 </body>
