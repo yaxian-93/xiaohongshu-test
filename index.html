@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>2026 AI机器人人格测试 · 深度解析版</title>
+    <title>2026 AI机器人人格测试 · 可返回修改</title>
     <style>
+        /* ---------- 原有样式（保持不变） ---------- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -21,6 +22,7 @@
             align-items: center;
             justify-content: center;
             padding: 12px;
+            position: relative;
         }
 
         #app {
@@ -118,6 +120,13 @@
             border-color: #f9a8d4;
             transform: scale(0.98);
             box-shadow: 0 2px 4px #f9a8d4;
+        }
+
+        /* 新增：已选中选项的高亮样式 */
+        .option-btn.selected {
+            background: #fbc1d8;
+            border-color: #f9a8d4;
+            box-shadow: 0 4px 8px #f9a8d4;
         }
 
         .result-box {
@@ -247,415 +256,585 @@
             margin-right: auto;
             border-radius: 10px;
         }
+
+        /* 新增：上一题按钮样式 */
+        .nav-btn {
+            background: #fff2f7;
+            border: 2px solid #ffe2ed;
+            border-radius: 60px;
+            padding: 14px 20px;
+            font-size: 18px;
+            color: #b13e6b;
+            font-weight: 500;
+            box-shadow: 0 4px 8px #ffd9e4;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.15s;
+        }
+        .nav-btn:active {
+            background: #ffe2ed;
+            transform: scale(0.98);
+        }
+        .nav-btn.hidden {
+            display: none;
+        }
+
+        /* 密码遮罩层样式（原样保留） */
+        #password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .password-box {
+            background: #fff0f7;
+            padding: 30px 25px;
+            border-radius: 40px;
+            width: 80%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(244, 114, 182, 0.3);
+            border: 2px solid white;
+        }
+
+        .password-box h3 {
+            font-size: 24px;
+            color: #b13e6b;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .password-box input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 18px;
+            border: 2px solid #f9a8d4;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            outline: none;
+            background: white;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .password-box button {
+            background: linear-gradient(145deg, #f9a8d4, #f472b6);
+            border: none;
+            border-radius: 60px;
+            padding: 15px 20px;
+            width: 100%;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 3px #b13e6b;
+            box-shadow: 0 8px 15px #fbcfe8;
+            cursor: pointer;
+            border: 1px solid #ffffff88;
+        }
+
+        .password-box button:active {
+            transform: scale(0.97);
+        }
+
+        .error-message {
+            color: #e64980;
+            margin-top: 10px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
+    <!-- 密码验证遮罩层（原样保留） -->
+    <div id="password-overlay">
+        <div class="password-box">
+            <h3>🔐 请输入测试密码</h3>
+            <input type="password" id="password-input" placeholder="密码" inputmode="numeric">
+            <button id="submit-password">进入测试</button>
+            <div id="password-error" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- 原有的测试容器 -->
     <div id="app"></div>
 
     <script>
         (function() {
-            // 测试题库
-            const questions = [
-                {
-                    text: "周末朋友约你出去玩，你的第一反应是？",
-                    options: [
-                        { text: "A. 马上答应，甚至开始规划路线", type: "social" },
-                        { text: "B. 先问清楚去哪、几个人、几点回", type: "task" },
-                        { text: "C. 表示要考虑一下，其实想宅家", type: "emotion" },
-                        { text: "D. 直接拒绝，已经安排了独处时间", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "在聚会上，你通常：",
-                    options: [
-                        { text: "A. 主动和陌生人聊天，活跃气氛", type: "social" },
-                        { text: "B. 和熟悉的人聊，但会观察全场", type: "task" },
-                        { text: "C. 安静待在角落，等别人来找你", type: "emotion" },
-                        { text: "D. 找个有趣的事自己玩（比如拍照）", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "遇到困难时，你首先会：",
-                    options: [
-                        { text: "A. 找朋友倾诉或求助", type: "social" },
-                        { text: "B. 自己分析原因，列解决方案", type: "task" },
-                        { text: "C. 情绪低落，需要缓一缓", type: "emotion" },
-                        { text: "D. 换个角度想，也许有新思路", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "别人对你的评价，你更希望是：",
-                    options: [
-                        { text: "A. 人缘好，会来事", type: "social" },
-                        { text: "B. 靠谱，做事让人放心", type: "task" },
-                        { text: "C. 善解人意，温柔体贴", type: "emotion" },
-                        { text: "D. 有想法，与众不同", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "如果团队合作，你更擅长：",
-                    options: [
-                        { text: "A. 协调沟通，让大家达成一致", type: "social" },
-                        { text: "B. 制定计划，分配任务", type: "task" },
-                        { text: "C. 体察成员情绪，缓和气氛", type: "emotion" },
-                        { text: "D. 提出新点子，打破僵局", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "接到一个复杂任务，你会：",
-                    options: [
-                        { text: "A. 先拉个群，大家一起商量", type: "social" },
-                        { text: "B. 列清单，分步骤执行", type: "task" },
-                        { text: "C. 感觉压力大，但会逼自己开始", type: "emotion" },
-                        { text: "D. 想有没有更简单的办法", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "你更喜欢哪种工作环境？",
-                    options: [
-                        { text: "A. 开放式工位，随时交流", type: "social" },
-                        { text: "B. 安静独立，专注做事", type: "task" },
-                        { text: "C. 温馨舒适，有放松区", type: "emotion" },
-                        { text: "D. 自由灵活，可以随意布置", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "遇到 deadline 逼近，你的状态是：",
-                    options: [
-                        { text: "A. 找人一起加班，互相打气", type: "social" },
-                        { text: "B. 高效冲刺，按计划完成", type: "task" },
-                        { text: "C. 焦虑到失眠，但咬牙坚持", type: "emotion" },
-                        { text: "D. 临时想出新方法，加速搞定", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "你更擅长处理：",
-                    options: [
-                        { text: "A. 人际关系问题", type: "social" },
-                        { text: "B. 逻辑流程问题", type: "task" },
-                        { text: "C. 情感心理问题", type: "emotion" },
-                        { text: "D. 创意设计问题", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "别人眼中你做事的风格：",
-                    options: [
-                        { text: "A. 风风火火，喜欢合作", type: "social" },
-                        { text: "B. 井井有条，从不拖延", type: "task" },
-                        { text: "C. 认真细致，但容易纠结", type: "emotion" },
-                        { text: "D. 天马行空，不按常理出牌", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "当被批评时，你的第一反应是：",
-                    options: [
-                        { text: "A. 找朋友吐槽，寻求安慰", type: "social" },
-                        { text: "B. 分析对错，下次改进", type: "task" },
-                        { text: "C. 难受很久，自我怀疑", type: "emotion" },
-                        { text: "D. 觉得对方不懂我，无所谓", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "你更容易被什么打动？",
-                    options: [
-                        { text: "A. 朋友的陪伴和支持", type: "social" },
-                        { text: "B. 事情圆满完成的结果", type: "task" },
-                        { text: "C. 细腻的情感表达（电影、音乐）", type: "emotion" },
-                        { text: "D. 独特的创意或作品", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "压力大时，你通常：",
-                    options: [
-                        { text: "A. 约朋友吃饭唱歌", type: "social" },
-                        { text: "B. 运动、做家务、列计划", type: "task" },
-                        { text: "C. 一个人待着，听歌写日记", type: "emotion" },
-                        { text: "D. 做点平时不做的奇怪事", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "你对情绪的态度是：",
-                    options: [
-                        { text: "A. 情绪应该和大家分享", type: "social" },
-                        { text: "B. 情绪会影响效率，要控制", type: "task" },
-                        { text: "C. 情绪很重要，要认真对待", type: "emotion" },
-                        { text: "D. 情绪是创作的源泉", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "朋友失恋了，你会：",
-                    options: [
-                        { text: "A. 拉他出来玩，让他开心起来", type: "social" },
-                        { text: "B. 帮他分析原因，给建议", type: "task" },
-                        { text: "C. 耐心倾听，陪他一起难过", type: "emotion" },
-                        { text: "D. 陪他做点疯狂的事发泄", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "学习新东西时，你更喜欢：",
-                    options: [
-                        { text: "A. 报班和同学一起学", type: "social" },
-                        { text: "B. 按教程一步步来", type: "task" },
-                        { text: "C. 慢慢摸索，感受过程", type: "emotion" },
-                        { text: "D. 自己瞎折腾，发现新玩法", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "对于新鲜事物，你的态度是：",
-                    options: [
-                        { text: "A. 和朋友一起尝试才有意思", type: "social" },
-                        { text: "B. 评估是否有用再决定", type: "task" },
-                        { text: "C. 看心情，感觉对了就试", type: "emotion" },
-                        { text: "D. 必须试试，万一好玩呢", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "你更容易记住：",
-                    options: [
-                        { text: "A. 谁说了什么话", type: "social" },
-                        { text: "B. 事情的时间地点", type: "task" },
-                        { text: "C. 当时的感受和氛围", type: "emotion" },
-                        { text: "D. 独特的画面和点子", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "旅行时，你更喜欢：",
-                    options: [
-                        { text: "A. 和当地人聊天，交朋友", type: "social" },
-                        { text: "B. 按攻略打卡景点", type: "task" },
-                        { text: "C. 找个喜欢的地方发呆", type: "emotion" },
-                        { text: "D. 探索小众路线，发现惊喜", type: "creativity" }
-                    ]
-                },
-                {
-                    text: "理想的生活是：",
-                    options: [
-                        { text: "A. 朋友环绕，热热闹闹", type: "social" },
-                        { text: "B. 事业有成，有条不紊", type: "task" },
-                        { text: "C. 内心平静，情感满足", type: "emotion" },
-                        { text: "D. 充满创意，每天新鲜", type: "creativity" }
-                    ]
-                }
-            ];
+            const overlay = document.getElementById('password-overlay');
+            const passwordInput = document.getElementById('password-input');
+            const submitBtn = document.getElementById('submit-password');
+            const errorDiv = document.getElementById('password-error');
 
-            // 全局状态管理
-            let currentIndex = 0;
-            let scores = {
-                social: 0,
-                task: 0,
-                emotion: 0,
-                creativity: 0
-            };
+            // 密码验证成功后的主函数
+            function startTest() {
+                overlay.style.display = 'none';
 
-            const app = document.getElementById('app');
+                // ---------- 题目数据（不变） ----------
+                const questions = [
+                    {
+                        text: "周末朋友约你出去玩，你的第一反应是？",
+                        options: [
+                            { text: "A. 马上答应，甚至开始规划路线", type: "social" },
+                            { text: "B. 先问清楚去哪、几个人、几点回", type: "task" },
+                            { text: "C. 表示要考虑一下，其实想宅家", type: "emotion" },
+                            { text: "D. 直接拒绝，已经安排了独处时间", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "在聚会上，你通常：",
+                        options: [
+                            { text: "A. 主动和陌生人聊天，活跃气氛", type: "social" },
+                            { text: "B. 和熟悉的人聊，但会观察全场", type: "task" },
+                            { text: "C. 安静待在角落，等别人来找你", type: "emotion" },
+                            { text: "D. 找个有趣的事自己玩（比如拍照）", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "遇到困难时，你首先会：",
+                        options: [
+                            { text: "A. 找朋友倾诉或求助", type: "social" },
+                            { text: "B. 自己分析原因，列解决方案", type: "task" },
+                            { text: "C. 情绪低落，需要缓一缓", type: "emotion" },
+                            { text: "D. 换个角度想，也许有新思路", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "别人对你的评价，你更希望是：",
+                        options: [
+                            { text: "A. 人缘好，会来事", type: "social" },
+                            { text: "B. 靠谱，做事让人放心", type: "task" },
+                            { text: "C. 善解人意，温柔体贴", type: "emotion" },
+                            { text: "D. 有想法，与众不同", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "如果团队合作，你更擅长：",
+                        options: [
+                            { text: "A. 协调沟通，让大家达成一致", type: "social" },
+                            { text: "B. 制定计划，分配任务", type: "task" },
+                            { text: "C. 体察成员情绪，缓和气氛", type: "emotion" },
+                            { text: "D. 提出新点子，打破僵局", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "接到一个复杂任务，你会：",
+                        options: [
+                            { text: "A. 先拉个群，大家一起商量", type: "social" },
+                            { text: "B. 列清单，分步骤执行", type: "task" },
+                            { text: "C. 感觉压力大，但会逼自己开始", type: "emotion" },
+                            { text: "D. 想有没有更简单的办法", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "你更喜欢哪种工作环境？",
+                        options: [
+                            { text: "A. 开放式工位，随时交流", type: "social" },
+                            { text: "B. 安静独立，专注做事", type: "task" },
+                            { text: "C. 温馨舒适，有放松区", type: "emotion" },
+                            { text: "D. 自由灵活，可以随意布置", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "遇到 deadline 逼近，你的状态是：",
+                        options: [
+                            { text: "A. 找人一起加班，互相打气", type: "social" },
+                            { text: "B. 高效冲刺，按计划完成", type: "task" },
+                            { text: "C. 焦虑到失眠，但咬牙坚持", type: "emotion" },
+                            { text: "D. 临时想出新方法，加速搞定", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "你更擅长处理：",
+                        options: [
+                            { text: "A. 人际关系问题", type: "social" },
+                            { text: "B. 逻辑流程问题", type: "task" },
+                            { text: "C. 情感心理问题", type: "emotion" },
+                            { text: "D. 创意设计问题", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "别人眼中你做事的风格：",
+                        options: [
+                            { text: "A. 风风火火，喜欢合作", type: "social" },
+                            { text: "B. 井井有条，从不拖延", type: "task" },
+                            { text: "C. 认真细致，但容易纠结", type: "emotion" },
+                            { text: "D. 天马行空，不按常理出牌", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "当被批评时，你的第一反应是：",
+                        options: [
+                            { text: "A. 找朋友吐槽，寻求安慰", type: "social" },
+                            { text: "B. 分析对错，下次改进", type: "task" },
+                            { text: "C. 难受很久，自我怀疑", type: "emotion" },
+                            { text: "D. 觉得对方不懂我，无所谓", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "你更容易被什么打动？",
+                        options: [
+                            { text: "A. 朋友的陪伴和支持", type: "social" },
+                            { text: "B. 事情圆满完成的结果", type: "task" },
+                            { text: "C. 细腻的情感表达（电影、音乐）", type: "emotion" },
+                            { text: "D. 独特的创意或作品", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "压力大时，你通常：",
+                        options: [
+                            { text: "A. 约朋友吃饭唱歌", type: "social" },
+                            { text: "B. 运动、做家务、列计划", type: "task" },
+                            { text: "C. 一个人待着，听歌写日记", type: "emotion" },
+                            { text: "D. 做点平时不做的奇怪事", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "你对情绪的态度是：",
+                        options: [
+                            { text: "A. 情绪应该和大家分享", type: "social" },
+                            { text: "B. 情绪会影响效率，要控制", type: "task" },
+                            { text: "C. 情绪很重要，要认真对待", type: "emotion" },
+                            { text: "D. 情绪是创作的源泉", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "朋友失恋了，你会：",
+                        options: [
+                            { text: "A. 拉他出来玩，让他开心起来", type: "social" },
+                            { text: "B. 帮他分析原因，给建议", type: "task" },
+                            { text: "C. 耐心倾听，陪他一起难过", type: "emotion" },
+                            { text: "D. 陪他做点疯狂的事发泄", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "学习新东西时，你更喜欢：",
+                        options: [
+                            { text: "A. 报班和同学一起学", type: "social" },
+                            { text: "B. 按教程一步步来", type: "task" },
+                            { text: "C. 慢慢摸索，感受过程", type: "emotion" },
+                            { text: "D. 自己瞎折腾，发现新玩法", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "对于新鲜事物，你的态度是：",
+                        options: [
+                            { text: "A. 和朋友一起尝试才有意思", type: "social" },
+                            { text: "B. 评估是否有用再决定", type: "task" },
+                            { text: "C. 看心情，感觉对了就试", type: "emotion" },
+                            { text: "D. 必须试试，万一好玩呢", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "你更容易记住：",
+                        options: [
+                            { text: "A. 谁说了什么话", type: "social" },
+                            { text: "B. 事情的时间地点", type: "task" },
+                            { text: "C. 当时的感受和氛围", type: "emotion" },
+                            { text: "D. 独特的画面和点子", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "旅行时，你更喜欢：",
+                        options: [
+                            { text: "A. 和当地人聊天，交朋友", type: "social" },
+                            { text: "B. 按攻略打卡景点", type: "task" },
+                            { text: "C. 找个喜欢的地方发呆", type: "emotion" },
+                            { text: "D. 探索小众路线，发现惊喜", type: "creativity" }
+                        ]
+                    },
+                    {
+                        text: "理想的生活是：",
+                        options: [
+                            { text: "A. 朋友环绕，热热闹闹", type: "social" },
+                            { text: "B. 事业有成，有条不紊", type: "task" },
+                            { text: "C. 内心平静，情感满足", type: "emotion" },
+                            { text: "D. 充满创意，每天新鲜", type: "creativity" }
+                        ]
+                    }
+                ];
 
-            // 核心渲染函数
-            function render() {
-                if (currentIndex < questions.length) {
-                    renderQuestion(currentIndex);
-                } else {
-                    renderResult();
-                }
-            }
+                // 当前题号索引（0~19, 20表示结果页）
+                let currentIndex = 0;
+                // 分数统计
+                let scores = {
+                    social: 0,
+                    task: 0,
+                    emotion: 0,
+                    creativity: 0
+                };
+                // 记录每道题所选类型（用于高亮和返回修改）
+                let selectedTypes = new Array(questions.length).fill(null);
 
-            // 渲染问题页面
-            function renderQuestion(index) {
-                const q = questions[index];
-                const progress = `${index+1} / ${questions.length}`;
-                const icon = index % 2 === 0 ? '🤖' : '🧸';
-                let html = `
-                    <div class="page-icon">${icon}</div>
-                    <div class="title-main">AI人格测试</div>
-                    <div class="sub-progress">✨ 问题 ${progress}</div>
-                    <div class="question-box">
-                        <div class="question-text">${q.text}</div>
-                        <div class="options-container">
-                `;
+                const app = document.getElementById('app');
 
-                q.options.forEach((opt, optIndex) => {
-                    let face = '';
-                    if (opt.type === 'social') face = '👥';
-                    else if (opt.type === 'task') face = '📋';
-                    else if (opt.type === 'emotion') face = '💖';
-                    else if (opt.type === 'creativity') face = '✨';
-                    html += `
-                        <button class="option-btn" data-type="${opt.type}" data-index="${index}">
-                            ${face} ${opt.text}
-                        </button>
-                    `;
-                });
-
-                html += `
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="icon-row">💭 跟随内心选择 💭</div>
-                    <div class="footer-note">点选后自动进入下一题</div>
-                `;
-                app.innerHTML = html;
-            }
-
-            // 渲染结果页面
-            function renderResult() {
-                // 计算成长值
-                let selfGrowth = Math.round((scores.social + scores.task + scores.emotion + scores.creativity) / 4 * 1.2);
-                if (selfGrowth > 20) selfGrowth = 20;
-
-                // 处理得分排序
-                const typeNames = ['social', 'task', 'emotion', 'creativity'];
-                const typeLabels = ['社交', '任务', '情绪', '创意'];
-                const values = [scores.social, scores.task, scores.emotion, scores.creativity];
-                const sorted = [...values].sort((a, b) => b - a);
-                const maxVal = sorted[0];
-                const secondVal = sorted[1];
-                const maxIndex = values.indexOf(maxVal);
-                const secondIndex = values.indexOf(secondVal);
-                const maxType = typeNames[maxIndex];
-                const secondType = typeNames[secondIndex];
-                const maxLabel = typeLabels[maxIndex];
-                const secondLabel = typeLabels[secondIndex];
-                const maxCount = values.filter(v => v === maxVal).length;
-
-                // 生成结果标题
-                let resultTitle = '';
-                if (maxCount > 1) {
-                    resultTitle = '🤖 全能混合型机器人';
-                } else {
-                    switch (maxType) {
-                        case 'social': resultTitle = '🤖 社交型机器人'; break;
-                        case 'task': resultTitle = '🤖 高效执行型机器人'; break;
-                        case 'emotion': resultTitle = '🤖 情感感知型机器人'; break;
-                        case 'creativity': resultTitle = '🤖 脑洞大开型机器人'; break;
+                // 渲染函数：根据 currentIndex 显示题目页或结果页
+                function render() {
+                    if (currentIndex < questions.length) {
+                        renderQuestion(currentIndex);
+                    } else {
+                        renderResult();
                     }
                 }
 
-                // 生成特质描述
-                let traitDescription = '';
-                if (maxCount > 1) {
-                    traitDescription = '您是一个多面手，身上融合了多种特质。您既能与人愉快合作，又能高效完成任务；既懂情绪，又有创意。这种复合型人格让您在复杂环境中游刃有余。';
-                } else {
-                    const combos = {
-                        'social_task': '您是典型的“组织者”：善于调动人际资源，又能高效执行。您总能让人心甘情愿配合您，同时把事办得妥帖。',
-                        'social_emotion': '您是温暖的“疗愈者”：您天生能察觉他人情绪，并用亲和力化解矛盾。朋友都爱找您倾诉，因为您既懂倾听，又能给出温暖回应。',
-                        'social_creativity': '您是闪光的“引爆者”：您擅长用创意点燃人群，总能想出新奇的点子让大家眼前一亮。聚会中有您，永远不会冷场。',
-                        'task_emotion': '您是细腻的“守护者”：做事靠谱，同时又很在意他人感受。您会在 deadline 前默默帮同事分担压力，是团队里最让人安心的存在。',
-                        'task_creativity': '您是冷静的“发明家”：既有条理又有灵感，能把天马行空的想法落地成可执行的方案。您擅长把创意变成产品。',
-                        'emotion_creativity': '您是梦幻的“艺术家”：您的情感是您创意的源泉。您能创作出打动人心的作品，因为您把自己的感受和想象都倾注其中。',
-                    };
-                    const key = maxType + '_' + secondType;
-                    traitDescription = combos[key] || `您的${maxLabel}特质最突出，同时${secondLabel}能力也很强，这让您在多数场景下都能找到自己的位置。`;
+                // 渲染题目
+                function renderQuestion(index) {
+                    const q = questions[index];
+                    const progress = `${index+1} / ${questions.length}`;
+                    const icon = index % 2 === 0 ? '🤖' : '🧸';
+
+                    let optionsHtml = '';
+                    q.options.forEach((opt, optIndex) => {
+                        let face = '';
+                        if (opt.type === 'social') face = '👥';
+                        else if (opt.type === 'task') face = '📋';
+                        else if (opt.type === 'emotion') face = '💖';
+                        else if (opt.type === 'creativity') face = '✨';
+
+                        // 判断该选项是否已被选中，添加高亮类
+                        const selectedClass = (selectedTypes[index] === opt.type) ? 'selected' : '';
+
+                        optionsHtml += `
+                            <button class="option-btn ${selectedClass}" data-type="${opt.type}" data-index="${index}">
+                                ${face} ${opt.text}
+                            </button>
+                        `;
+                    });
+
+                    // 上一题按钮：第一题隐藏
+                    const prevBtnClass = (index === 0) ? 'hidden' : '';
+
+                    let html = `
+                        <div class="page-icon">${icon}</div>
+                        <div class="title-main">AI人格测试</div>
+                        <div class="sub-progress">✨ 问题 ${progress}</div>
+                        <div class="question-box">
+                            <div class="question-text">${q.text}</div>
+                            <div class="options-container">
+                                ${optionsHtml}
+                            </div>
+                            <button class="nav-btn ${prevBtnClass}" id="prev-btn">⬅️ 上一题</button>
+                        </div>
+                        <hr>
+                        <div class="icon-row">💭 可点击上一题修改答案</div>
+                        <div class="footer-note">点选选项后自动进入下一题</div>
+                    `;
+
+                    app.innerHTML = html;
                 }
 
-                // 生成成长建议
-                let growthAdvice = '';
-                if (maxCount > 1) {
-                    growthAdvice = '• 尝试将您的复合能力聚焦到一个具体领域（如用“社交+创意”做社群裂变活动）<br>• 每年学习一个与您现有能力差异较大的新技能（比如数据分析），让复合优势更立体';
-                } else {
-                    const adviceMap = {
-                        'social': '• 每周主动认识一位新朋友，但也要留出独处时间消化思考<br>• 尝试把社交经验写成小技巧，分享出去，您会发现影响力在扩大',
-                        'task': '• 接受计划被打乱，每周留出20%时间处理“意外”<br>• 主动承担需要跨部门协调的任务，锻炼统筹能力',
-                        'emotion': '• 用日记记录情绪变化，找到触发点和应对方式<br>• 尝试通过艺术表达（画画/写诗/音乐）转化您细腻的感受',
-                        'creativity': '• 每天记录三个“疯狂想法”，不评判可行性<br>• 找一个执行型伙伴合作，让您的点子有机会落地',
-                    };
-                    growthAdvice = adviceMap[maxType] || '• 找到您最享受的事，每天投入30分钟深耕<br>• 定期复盘自己的进步，哪怕很小，也要记录下来';
+                // 渲染结果页（完全沿用之前五维深度解析）
+                function renderResult() {
+                    let selfGrowth = Math.round((scores.social + scores.task + scores.emotion + scores.creativity) / 4 * 1.2);
+                    if (selfGrowth > 20) selfGrowth = 20;
+
+                    const typeNames = ['social', 'task', 'emotion', 'creativity'];
+                    const typeLabels = ['社交', '任务', '情绪', '创意'];
+                    const values = [scores.social, scores.task, scores.emotion, scores.creativity];
+
+                    const sorted = [...values].sort((a, b) => b - a);
+                    const maxVal = sorted[0];
+                    const secondVal = sorted[1];
+                    const maxIndex = values.indexOf(maxVal);
+                    const secondIndex = values.indexOf(secondVal);
+                    const maxType = typeNames[maxIndex];
+                    const secondType = typeNames[secondIndex];
+                    const maxLabel = typeLabels[maxIndex];
+                    const secondLabel = typeLabels[secondIndex];
+
+                    const maxCount = values.filter(v => v === maxVal).length;
+
+                    let resultTitle = '';
+                    if (maxCount > 1) {
+                        resultTitle = '🤖 全能混合型机器人';
+                    } else {
+                        switch (maxType) {
+                            case 'social': resultTitle = '🤖 社交型机器人'; break;
+                            case 'task': resultTitle = '🤖 高效执行型机器人'; break;
+                            case 'emotion': resultTitle = '🤖 情感感知型机器人'; break;
+                            case 'creativity': resultTitle = '🤖 脑洞大开型机器人'; break;
+                        }
+                    }
+
+                    let traitDescription = '';
+                    if (maxCount > 1) {
+                        traitDescription = '您是一个多面手，身上融合了多种特质。您既能与人愉快合作，又能高效完成任务；既懂情绪，又有创意。这种复合型人格让您在复杂环境中游刃有余。';
+                    } else {
+                        const combos = {
+                            'social_task': '您是典型的“组织者”：善于调动人际资源，又能高效执行。您总能让人心甘情愿配合您，同时把事办得妥帖。',
+                            'social_emotion': '您是温暖的“疗愈者”：您天生能察觉他人情绪，并用亲和力化解矛盾。朋友都爱找您倾诉，因为您既懂倾听，又能给出温暖回应。',
+                            'social_creativity': '您是闪光的“引爆者”：您擅长用创意点燃人群，总能想出新奇的点子让大家眼前一亮。聚会中有您，永远不会冷场。',
+                            'task_emotion': '您是细腻的“守护者”：做事靠谱，同时又很在意他人感受。您会在 deadline 前默默帮同事分担压力，是团队里最让人安心的存在。',
+                            'task_creativity': '您是冷静的“发明家”：既有条理又有灵感，能把天马行空的想法落地成可执行的方案。您擅长把创意变成产品。',
+                            'emotion_creativity': '您是梦幻的“艺术家”：您的情感是您创意的源泉。您能创作出打动人心的作品，因为您把自己的感受和想象都倾注其中。',
+                        };
+                        const key = maxType + '_' + secondType;
+                        traitDescription = combos[key] || `您的${maxLabel}特质最突出，同时${secondLabel}能力也很强，这让您在多数场景下都能找到自己的位置。`;
+                    }
+
+                    let growthAdvice = '';
+                    if (maxCount > 1) {
+                        growthAdvice = '• 尝试将您的复合能力聚焦到一个具体领域（如用“社交+创意”做社群裂变活动）<br>• 每年学习一个与您现有能力差异较大的新技能（比如数据分析），让复合优势更立体';
+                    } else {
+                        const adviceMap = {
+                            'social': '• 每周主动认识一位新朋友，但也要留出独处时间消化思考<br>• 尝试把社交经验写成小技巧，分享出去，您会发现影响力在扩大',
+                            'task': '• 接受计划被打乱，每周留出20%时间处理“意外”<br>• 主动承担需要跨部门协调的任务，锻炼统筹能力',
+                            'emotion': '• 用日记记录情绪变化，找到触发点和应对方式<br>• 尝试通过艺术表达（画画/写诗/音乐）转化您细腻的感受',
+                            'creativity': '• 每天记录三个“疯狂想法”，不评判可行性<br>• 找一个执行型伙伴合作，让您的点子有机会落地',
+                        };
+                        growthAdvice = adviceMap[maxType] || '• 找到您最享受的事，每天投入30分钟深耕<br>• 定期复盘自己的进步，哪怕很小，也要记录下来';
+                    }
+
+                    let futureDirection = '';
+                    if (maxCount > 1) {
+                        futureDirection = '您是AI时代最稀缺的“π型人才”，适合探索多领域交叉地带，比如：AI产品经理、数字策展人、人机协作培训师。';
+                    } else {
+                        const futureMap = {
+                            'social': '您的共情能力是AI无法替代的，适合向“社群运营专家”“用户洞察顾问”发展，用您的连接力放大AI的效率。',
+                            'task': 'AI能帮您处理数据，您将进化为“超级个体”，适合做“自动化流程设计师”“AI训练师”，让工具为您所用。',
+                            'emotion': '在机器越来越像人的时代，您这种“真实情感”变得格外珍贵，适合做“心理疗愈师”“情感化设计师”，用您的感受力创造温暖。',
+                            'creativity': 'AI可以模仿，但无法真正创造。您适合做“创意导演”“跨领域创新者”，把不同领域的元素重新组合。',
+                        };
+                        futureDirection = futureMap[maxType] || '找到您的热爱，深耕下去，成为该领域不可替代的人。';
+                    }
+
+                    const quotes = [
+                        '你不需要成为别人，你只需要成为更好的自己。',
+                        '成长不是和别人比，而是今天的自己比昨天多懂了一点点。',
+                        '你的特质就是你的超能力，好好使用它。',
+                        'AI时代，最稀缺的不是技能，而是你独有的温度。',
+                        '你走的每一步都算数，即使暂时看不见，也在扎根。',
+                    ];
+                    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+                    let html = `
+                        <div class="page-icon">📊</div>
+                        <div class="title-main">你的机器人人格·深度解析</div>
+                        <div class="result-box">
+                            <div class="result-title">${resultTitle}</div>
+                            
+                            <div class="score-board">
+                                <div class="score-item"><span class="score-label">👥 社交</span><span class="score-value">${scores.social}</span></div>
+                                <div class="score-item"><span class="score-label">📋 任务</span><span class="score-value">${scores.task}</span></div>
+                                <div class="score-item"><span class="score-label">💖 情绪</span><span class="score-value">${scores.emotion}</span></div>
+                                <div class="score-item"><span class="score-label">✨ 创意</span><span class="score-value">${scores.creativity}</span></div>
+                                <div class="score-item"><span class="score-label">🌱 成长</span><span class="score-value">${selfGrowth}</span></div>
+                            </div>
+                            
+                            <div class="result-desc" style="margin-top:0;">
+                                <strong>✨ 你的特质画像</strong><br>
+                                ${traitDescription}
+                            </div>
+                            
+                            <div class="result-desc" style="background:#f0f7ff; border-color:#a0c8f0;">
+                                <strong>🌱 自我成长指南</strong><br>
+                                ${growthAdvice}
+                            </div>
+                            
+                            <div class="result-desc" style="background:#fff0fa; border-color:#f0a0d0;">
+                                <strong>🚀 AI时代发展方向</strong><br>
+                                ${futureDirection}
+                            </div>
+                            
+                            <div style="text-align:center; font-size:18px; font-weight:500; color:#b13e6b; margin:20px 0 10px;">
+                                💬 ${randomQuote}
+                            </div>
+                            
+                            <button class="restart-btn" id="restartBtn">
+                                🔄 重新测试
+                            </button>
+                        </div>
+                        <div class="footer-note">❤️ 你的每一次测试，都是一次自我发现</div>
+                    `;
+
+                    app.innerHTML = html;
                 }
 
-                // 生成发展方向
-                let futureDirection = '';
-                if (maxCount > 1) {
-                    futureDirection = '您是AI时代最稀缺的“π型人才”，适合探索多领域交叉地带，比如：AI产品经理、数字策展人、人机协作培训师。';
-                } else {
-                    const futureMap = {
-                        'social': '您的共情能力是AI无法替代的，适合向“社群运营专家”“用户洞察顾问”发展，用您的连接力放大AI的效率。',
-                        'task': 'AI能帮您处理数据，您将进化为“超级个体”，适合做“自动化流程设计师”“AI训练师”，让工具为您所用。',
-                        'emotion': '在机器越来越像人的时代，您这种“真实情感”变得格外珍贵，适合做“心理疗愈师”“情感化设计师”，用您的感受力创造温暖。',
-                        'creativity': 'AI可以模仿，但无法真正创造。您适合做“创意导演”“跨领域创新者”，把不同领域的元素重新组合。',
-                    };
-                    futureDirection = futureMap[maxType] || '找到您的热爱，深耕下去，成为该领域不可替代的人。';
+                // 处理所有按钮点击（包括选项、上一题、重新测试）
+                function handleClick(e) {
+                    const target = e.target.closest('button');
+                    if (!target) return;
+
+                    // 重新测试按钮（位于结果页）
+                    if (target.id === 'restartBtn') {
+                        // 重置所有状态
+                        currentIndex = 0;
+                        scores = { social: 0, task: 0, emotion: 0, creativity: 0 };
+                        selectedTypes = new Array(questions.length).fill(null);
+                        render();
+                        return;
+                    }
+
+                    // 上一题按钮
+                    if (target.id === 'prev-btn') {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            render();
+                        }
+                        return;
+                    }
+
+                    // 选项按钮
+                    if (target.classList.contains('option-btn')) {
+                        const type = target.dataset.type;
+                        const index = parseInt(target.dataset.index, 10);
+                        if (type && index === currentIndex) { // 确保是当前题
+                            // 如果当前题之前选过，先从总分中扣除
+                            const previousType = selectedTypes[index];
+                            if (previousType) {
+                                scores[previousType] -= 1;
+                            }
+                            // 加上新选的分数
+                            scores[type] += 1;
+                            // 更新记录
+                            selectedTypes[index] = type;
+
+                            // 跳转到下一题或结果页
+                            if (currentIndex === questions.length - 1) {
+                                currentIndex = 20; // 进入结果页
+                                render();
+                            } else {
+                                currentIndex++;
+                                render();
+                            }
+                        }
+                    }
                 }
 
-                // 随机名言
-                const quotes = [
-                    '你不需要成为别人，你只需要成为更好的自己。',
-                    '成长不是和别人比，而是今天的自己比昨天多懂了一点点。',
-                    '你的特质就是你的超能力，好好使用它。',
-                    'AI时代，最稀缺的不是技能，而是你独有的温度。',
-                    '你走的每一步都算数，即使暂时看不见，也在扎根。',
-                ];
-                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                // 监听点击事件
+                app.addEventListener('click', handleClick);
 
-                // 拼接结果页面HTML
-                let html = `
-                    <div class="page-icon">📊</div>
-                    <div class="title-main">你的机器人人格·深度解析</div>
-                    <div class="result-box">
-                        <div class="result-title">${resultTitle}</div>
-                        
-                        <div class="score-board">
-                            <div class="score-item"><span class="score-label">👥 社交</span><span class="score-value">${scores.social}</span></div>
-                            <div class="score-item"><span class="score-label">📋 任务</span><span class="score-value">${scores.task}</span></div>
-                            <div class="score-item"><span class="score-label">💖 情绪</span><span class="score-value">${scores.emotion}</span></div>
-                            <div class="score-item"><span class="score-label">✨ 创意</span><span class="score-value">${scores.creativity}</span></div>
-                            <div class="score-item"><span class="score-label">🌱 成长</span><span class="score-value">${selfGrowth}</span></div>
-                        </div>
-                        
-                        <div class="result-desc" style="margin-top:0;">
-                            <strong>✨ 你的特质画像</strong><br>
-                            ${traitDescription}
-                        </div>
-                        
-                        <div class="result-desc" style="background:#f0f7ff; border-color:#a0c8f0;">
-                            <strong>🌱 自我成长指南</strong><br>
-                            ${growthAdvice}
-                        </div>
-                        
-                        <div class="result-desc" style="background:#fff0fa; border-color:#f0a0d0;">
-                            <strong>🚀 AI时代发展方向</strong><br>
-                            ${futureDirection}
-                        </div>
-                        
-                        <div style="text-align:center; font-size:18px; font-weight:500; color:#b13e6b; margin:20px 0 10px;">
-                            💬 ${randomQuote}
-                        </div>
-                        
-                        <button class="restart-btn" id="restartBtn">
-                            🔄 重新测试
-                        </button>
-                    </div>
-                    <div class="footer-note">❤️ 你的每一次测试，都是一次自我发现</div>
-                `;
-
-                app.innerHTML = html;
+                // 初始渲染
+                render();
             }
 
-            // 点击事件处理
-            function handleClick(e) {
-                const target = e.target.closest('button');
-                if (!target) return;
-
-                // 重新测试按钮
-                if (target.id === 'restartBtn') {
-                    currentIndex = 0;
-                    scores = { social: 0, task: 0, emotion: 0, creativity: 0 };
-                    render();
-                    return;
+            // 密码验证（与原逻辑一致）
+            submitBtn.addEventListener('click', function() {
+                const password = passwordInput.value.trim();
+                if (password === '3322') {
+                    startTest();
+                } else {
+                    errorDiv.textContent = '密码错误，即将跳转...';
+                    setTimeout(function() {
+                        window.location.href = 'about:blank';
+                    }, 1500);
                 }
+            });
 
-                // 选项按钮
-                if (target.classList.contains('option-btn')) {
-                    const type = target.dataset.type;
-                    if (!type) return;
-
-                    // 加分并进入下一题
-                    scores[type] += 1;
-                    currentIndex++;
-                    render();
+            passwordInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitBtn.click();
                 }
-            }
+            });
 
-            // 绑定事件监听并初始化渲染
-            app.addEventListener('click', handleClick);
-            render();
+            passwordInput.focus();
         })();
     </script>
 </body>
