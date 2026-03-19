@@ -11,7 +11,17 @@
             padding: 0;
         }
 
-        body {
+        <body>
+        <script>
+window.onload = function() {
+  var correctPassword = "test666"; // 密码是3322，你可以后续改
+  var password = prompt("请输入测试密码：");
+  if (password !== correctPassword) {
+    alert("密码错误！请私信购买获取～");
+    window.location.href = "about:blank";
+  }
+};
+</script> 
             margin: 0;
             min-height: 100vh;
             background: url('https://s41.ax1x.com/2026/03/18/peeHHGd.jpg') no-repeat center center fixed;
