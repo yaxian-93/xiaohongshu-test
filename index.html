@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>🤖 机器人人格测试 · 寻泊好运社</title>
+    <title>🤖 机器人人格测试 · 小红书-寻泊好运社</title>
     <style>
         * {
             margin: 0;
@@ -13,30 +13,42 @@
 
         body {
             font-family: 'PingFang SC', 'Helvetica Neue', 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
-            background: linear-gradient(165deg, #fce7f0 0%, #fff2f7 100%);
+            background: linear-gradient(165deg, #ffe9f1 0%, #fff4f9 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 16px 12px 20px;
-            color: #39252c;
+            color: #3b2a32;
+        }
+
+        /* 可爱小点缀：漂浮的点 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background-image: radial-gradient(#ffb8d0 2px, transparent 2px);
+            background-size: 40px 40px;
+            opacity: 0.3;
+            z-index: -1;
         }
 
         .main-card {
             max-width: 420px;
             width: 100%;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 44px 44px 34px 34px;
-            box-shadow: 0 30px 45px -15px rgba(240, 130, 160, 0.3);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 48px 48px 38px 38px;
+            box-shadow: 0 30px 45px -15px rgba(250, 120, 160, 0.4);
             overflow: hidden;
-            border: 1px solid rgba(255, 210, 225, 0.7);
+            border: 1px solid rgba(255, 200, 220, 0.8);
             margin-bottom: 16px;
         }
 
         .content-pane {
-            padding: 30px 22px 38px;
+            padding: 28px 20px 35px;
         }
 
         /* 锁屏界面 */
@@ -44,25 +56,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 24px;
+            gap: 22px;
         }
 
         .lock-icon {
             font-size: 70px;
-            filter: drop-shadow(0 10px 15px rgba(255, 130, 170, 0.4));
-            animation: wobble 3s infinite ease-in-out;
+            filter: drop-shadow(0 10px 15px rgba(255, 120, 170, 0.5));
+            animation: bounce 2.5s infinite ease;
         }
 
-        @keyframes wobble {
-            0%,100%{ transform: rotate(0deg) translateY(0); }
-            25%{ transform: rotate(4deg) translateY(-5px); }
-            75%{ transform: rotate(-4deg) translateY(-3px); }
+        @keyframes bounce {
+            0%,100%{ transform: translateY(0); }
+            50%{ transform: translateY(-10px); }
         }
 
         .lock-title {
             font-size: 2.4rem;
             font-weight: 800;
-            background: linear-gradient(145deg, #ff80a5, #ff4f79);
+            background: linear-gradient(145deg, #ff8aad, #ff5a83);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -70,52 +81,52 @@
         }
 
         .lock-sub {
-            background: #ffe7f0;
+            background: #ffecf3;
             padding: 8px 28px;
             border-radius: 60px;
             font-size: 1.2rem;
-            color: #bc4e73;
+            color: #c45a7c;
             font-weight: 400;
-            border: 1px solid #ffc0d0;
+            border: 1px solid #ffc6d8;
         }
 
         .password-input {
             width: 70%;
-            padding: 18px 25px;
+            padding: 16px 20px;
             font-size: 1.8rem;
             text-align: center;
-            border: 3px solid #ffb7cd;
+            border: 3px solid #ffc2d5;
             border-radius: 60px;
             background: white;
             outline: none;
             letter-spacing: 8px;
             font-weight: 600;
-            color: #39252c;
+            color: #3b2a32;
         }
 
         .password-input:focus {
-            border-color: #ff739b;
-            box-shadow: 0 0 0 5px rgba(255, 120, 170, 0.2);
+            border-color: #ff87af;
+            box-shadow: 0 0 0 6px rgba(255, 130, 180, 0.2);
         }
 
         .unlock-btn {
-            background: #ff8eb0;
+            background: #ff9cbb;
             border: none;
             color: white;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            padding: 16px 50px;
+            padding: 14px 45px;
             border-radius: 60px;
-            box-shadow: 0 20px 30px -10px #ff99b5;
+            box-shadow: 0 18px 25px -8px #ffa5c0;
             cursor: pointer;
             transition: 0.1s;
-            border: 1px solid #ffdae5;
+            border: 1px solid #ffe2ef;
         }
 
-        .unlock-btn:active { transform: scale(0.95); background: #ff6f98; }
+        .unlock-btn:active { transform: scale(0.96); background: #ff7ca5; }
 
         .error-msg {
-            color: #c72e62;
+            color: #d6376b;
             font-weight: 600;
             min-height: 28px;
         }
@@ -133,39 +144,53 @@
         }
 
         .brand {
-            font-size: 2rem;
-            font-weight: 800;
-            background: linear-gradient(145deg, #ff6392, #ff3865);
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(145deg, #ff6f98, #ff3f70);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
         .q-counter {
-            background: #ffeaf2;
+            background: #ffecf3;
             border-radius: 40px;
-            padding: 6px 20px;
+            padding: 6px 18px;
             font-weight: 600;
-            color: #a13b5b;
-            border: 1px solid #ffbed2;
+            color: #b14568;
+            border: 1px solid #ffc6d8;
+            font-size: 0.95rem;
         }
 
         .question-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(4px);
-            border-radius: 38px;
-            padding: 30px 18px 25px;
-            margin: 15px 0 20px;
-            border: 1px solid #ffe2ed;
-            box-shadow: 0 15px 30px -12px #feb0c2;
+            border-radius: 42px;
+            padding: 28px 18px 20px;
+            margin: 12px 0 16px;
+            border: 1px solid #ffe6f0;
+            box-shadow: 0 15px 30px -10px #fec0d2;
+        }
+
+        .question-number {
+            font-size: 1.1rem;
+            color: #ff7fa5;
+            margin-bottom: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: #fff0f7;
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 30px;
+            border: 1px solid #ffc7db;
         }
 
         .question-text {
-            font-size: 1.7rem;
-            font-weight: 700;
-            line-height: 1.3;
-            color: #342026;
-            margin-bottom: 35px;
+            font-size: 1.5rem;
+            font-weight: 650;
+            line-height: 1.4;
+            color: #362028;
+            margin-bottom: 30px;
             padding: 0 5px;
         }
 
@@ -177,152 +202,182 @@
 
         .option-btn {
             background: white;
-            border: 2px solid #ffc2d3;
-            border-radius: 50px;
-            padding: 16px 20px;
-            font-size: 1.2rem;
+            border: 2px solid #ffd0df;
+            border-radius: 60px;
+            padding: 14px 18px;
+            font-size: 1.1rem;
             font-weight: 500;
-            color: #402830;
+            color: #432b34;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
             cursor: pointer;
-            transition: 0.08s;
-            box-shadow: 0 4px 8px #fee0ec;
+            transition: 0.1s;
+            box-shadow: 0 4px 8px #ffe2ef;
+        }
+
+        .option-btn.selected {
+            background: #ffe3f0;
+            border-color: #ff8fb2;
+            box-shadow: 0 6px 12px #ffc1d6;
         }
 
         .option-btn:active {
             background: #ffeef5;
-            border-color: #ff7aa5;
+            border-color: #ff8fb2;
             transform: scale(0.98);
         }
 
         .opt-prefix {
-            width: 44px;
-            height: 44px;
-            background: #ffd4e2;
+            width: 42px;
+            height: 42px;
+            background: #ffdae8;
             border-radius: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 1.6rem;
-            color: #bc3d66;
+            font-size: 1.4rem;
+            color: #c74470;
             flex-shrink: 0;
         }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .prev-btn {
+            background: #ffe2ef;
+            border: 2px solid #ffb7cf;
+            color: #b3436b;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 60px;
+            flex: 1;
+            cursor: pointer;
+            transition: 0.1s;
+            text-align: center;
+        }
+
+        .prev-btn:active { background: #ffd0e2; }
+        .prev-btn.hidden { visibility: hidden; pointer-events: none; }
 
         /* 结果卡片 */
         .result-wrap {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(4px);
-            border-radius: 38px;
-            padding: 28px 22px 32px;
-            margin: 20px 0;
-            border: 1px solid #ffdae8;
+            border-radius: 42px;
+            padding: 26px 20px 30px;
+            margin: 16px 0;
+            border: 1px solid #ffe2f0;
         }
 
         .result-emojibadge {
-            font-size: 2.2rem;
-            background: #ffe3f0;
+            font-size: 2rem;
+            background: #ffe8f2;
             padding: 10px 22px;
             border-radius: 60px;
             display: inline-block;
             margin-bottom: 20px;
-            border: 1px solid #ffb0c8;
+            border: 1px solid #ffc0d5;
             font-weight: 700;
-            color: #bb3862;
+            color: #c2456c;
         }
 
         .hit-quote {
-            background: #fff0fa;
-            border-left: 10px solid #ff9bbd;
-            padding: 20px 18px;
+            background: #fff2fa;
+            border-left: 10px solid #ffa9c5;
+            padding: 18px 18px;
             border-radius: 30px;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             line-height: 1.5;
-            color: #4f2b39;
-            margin: 20px 0;
+            color: #4f2e3b;
+            margin: 18px 0;
             font-style: italic;
-            box-shadow: 0 8px 12px #fddde9;
+            box-shadow: 0 6px 12px #fde3ed;
         }
 
         .section {
-            margin: 28px 0;
+            margin: 24px 0;
         }
 
         .section h4 {
-            font-size: 1.4rem;
-            color: #ba3f68;
-            margin-bottom: 12px;
+            font-size: 1.3rem;
+            color: #c24a73;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border-bottom: 2px solid #ffcbd9;
-            padding-bottom: 6px;
+            gap: 6px;
+            border-bottom: 2px solid #ffd6e5;
+            padding-bottom: 5px;
         }
 
         .section-content {
-            background: #fef7fa;
-            padding: 20px 18px;
+            background: #fef8fb;
+            padding: 18px 16px;
             border-radius: 28px;
-            font-size: 1.05rem;
+            font-size: 1rem;
             line-height: 1.65;
-            color: #39252c;
+            color: #3b2a32;
             white-space: pre-line;
         }
 
         .tagline {
-            background: #feeaf2;
-            border: 2px dashed #ffa7c0;
+            background: #fdecf4;
+            border: 2px dashed #ffb2cc;
             border-radius: 60px;
-            padding: 16px 20px;
-            font-size: 1.35rem;
+            padding: 14px 18px;
+            font-size: 1.2rem;
             font-weight: 700;
-            color: #b13a62;
+            color: #ba456b;
             text-align: center;
-            margin: 30px 0 15px;
+            margin: 28px 0 12px;
         }
 
         .restart-btn {
             background: white;
-            border: 2px solid #ff9fb8;
-            color: #c0456e;
-            font-size: 1.4rem;
+            border: 2px solid #ffadc8;
+            color: #cb4f7a;
+            font-size: 1.3rem;
             font-weight: 700;
-            padding: 16px 0;
+            padding: 14px 0;
             border-radius: 60px;
             width: 100%;
             cursor: pointer;
             transition: 0.1s;
         }
 
-        .restart-btn:active { background: #ffdae8; }
+        .restart-btn:active { background: #ffe3f0; }
 
         /* 底部固定链接 */
         .footer {
             max-width: 420px;
             width: 100%;
             text-align: center;
-            background: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(8px);
             border-radius: 60px;
-            padding: 12px 10px;
-            border: 1px solid #ffcbd9;
+            padding: 10px 10px;
+            border: 1px solid #ffd6e5;
         }
 
         .footer a {
             text-decoration: none;
-            background: #ffe3ee;
-            padding: 8px 30px;
+            background: #ffe9f2;
+            padding: 8px 28px;
             border-radius: 50px;
-            color: #b5486e;
+            color: #bf5177;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             display: inline-block;
-            border: 1px solid #ffadc6;
+            border: 1px solid #ffbcd2;
         }
 
-        .footer a:active { background: #ffd0e0; }
+        .footer a:active { background: #ffdae8; }
 
         .hidden { display: none !important; }
     </style>
@@ -334,9 +389,9 @@
             <div id="lockScreen">
                 <div class="lock-icon">🤖🔐</div>
                 <div class="lock-title">机器人人格</div>
-                <div class="lock-sub">付费测试入口</div>
+                <div class="lock-sub">付 费 测 试 入 口</div>
                 <input type="password" id="pwdInput" class="password-input" placeholder="****" inputmode="numeric" maxlength="4">
-                <button class="unlock-btn" id="unlockBtn">解锁</button>
+                <button class="unlock-btn" id="unlockBtn">解 锁</button>
                 <div id="pwdError" class="error-msg"></div>
             </div>
 
@@ -350,8 +405,14 @@
                 <!-- 题目区 -->
                 <div id="questionPanel">
                     <div class="question-card">
+                        <div id="questionNumber" class="question-number">🌸 第1题</div>
                         <div id="question" class="question-text">加载中...</div>
                         <div id="optionsList" class="options"></div>
+                        <!-- 上一题按钮区域 -->
+                        <div class="nav-buttons">
+                            <button id="prevBtn" class="prev-btn">‹ 上一题</button>
+                            <div style="flex:1;"></div> <!-- 占位保持对称 -->
+                        </div>
                     </div>
                 </div>
 
@@ -361,8 +422,9 @@
         </div>
     </div>
 
+    <!-- 底部链接：小红书-寻泊好运社 -->
     <div class="footer">
-        <a href="https://xhslink.com/m/2KLb5BTIvAj" target="_blank" rel="noopener">✨ 寻泊好运社 ✨</a>
+        <a href="https://xhslink.com/m/2KLb5BTIvAj" target="_blank" rel="noopener">🌸 小红书-寻泊好运社 🌸</a>
     </div>
 
     <script>
@@ -391,10 +453,12 @@
                 "理想的生活是："
             ];
 
-            // 每个选项对应的维度 (A:社交 B:任务 C:情绪 D:创意)
-            const OPTION_TYPE = ['social','task','emotional','creative'];
+            // 选项对应的维度 (A:社交 B:任务 C:情绪 D:创意)
+            const OPTION_TYPE = { 'A':'social', 'B':'task', 'C':'emotional', 'D':'creative' };
+            // 选项显示文字（保持简短）
+            const OPTION_TEXTS = ['社交型', '任务型', '情绪型', '创意型'];
 
-            // ---------- 深度优化版结果文案(含金句+细节) ----------
+            // ---------- 深度优化版结果文案(含金句) ----------
             const RESULT = {
                 social: {
                     title: '社交型机器人 🤝',
@@ -454,19 +518,22 @@
             };
 
             // 当前状态
-            let currentIndex = 0;
+            let currentIndex = 0;                 // 0~19
             let scores = { social:0, task:0, emotional:0, creative:0 };
+            let answers = new Array(20).fill(null); // 存储每题的选项 'A','B','C','D'
             let testFinished = false;
 
-            // DOM
+            // DOM 元素
             const lockDiv = document.getElementById('lockScreen');
             const testDiv = document.getElementById('testContent');
             const pwdInput = document.getElementById('pwdInput');
             const unlockBtn = document.getElementById('unlockBtn');
             const pwdError = document.getElementById('pwdError');
             const progressSpan = document.getElementById('progress');
+            const questionNumberDiv = document.getElementById('questionNumber');
             const questionDiv = document.getElementById('question');
             const optionsDiv = document.getElementById('optionsList');
+            const prevBtn = document.getElementById('prevBtn');
             const questionPanel = document.getElementById('questionPanel');
             const resultPanel = document.getElementById('resultPanel');
 
@@ -483,47 +550,104 @@
             });
             pwdInput.addEventListener('keypress', (e)=> { if(e.key === 'Enter') unlockBtn.click(); });
 
+            // 重置测试
             function resetTest() {
                 currentIndex = 0;
                 scores = { social:0, task:0, emotional:0, creative:0 };
+                answers = new Array(20).fill(null);
                 testFinished = false;
                 questionPanel.style.display = 'block';
                 resultPanel.style.display = 'none';
                 renderQuestion();
             }
 
+            // 根据存储的答案更新分数 (用于初始化或上一题后重新计算分数)
+            function recalcScores() {
+                scores = { social:0, task:0, emotional:0, creative:0 };
+                for (let i = 0; i < answers.length; i++) {
+                    const ans = answers[i];
+                    if (ans) {
+                        scores[OPTION_TYPE[ans]] += 1;
+                    }
+                }
+            }
+
+            // 渲染当前题目
             function renderQuestion() {
                 if (testFinished) return;
                 progressSpan.innerText = `${currentIndex+1}/${QUESTIONS.length}`;
+                questionNumberDiv.innerText = `🌸 第${currentIndex+1}题`;
                 questionDiv.innerText = QUESTIONS[currentIndex];
+
+                // 生成选项
                 let html = '';
                 ['A','B','C','D'].forEach((letter, idx) => {
-                    let typeName = ['社交型','任务型','情绪型','创意型'][idx];
-                    html += `<div class="option-btn" data-opt="${letter}">
+                    const selectedClass = (answers[currentIndex] === letter) ? 'selected' : '';
+                    html += `<div class="option-btn ${selectedClass}" data-opt="${letter}">
                         <span class="opt-prefix">${letter}</span>
-                        <span>${typeName}</span>
+                        <span>${OPTION_TEXTS[idx]}</span>
                     </div>`;
                 });
                 optionsDiv.innerHTML = html;
+
+                // 绑定选项事件
                 document.querySelectorAll('.option-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const opt = btn.dataset.opt; // 'A','B','C','D'
-                        const dimap = { 'A':'social', 'B':'task', 'C':'emotional', 'D':'creative' };
-                        scores[dimap[opt]] += 1;
-                        if (currentIndex < QUESTIONS.length-1) {
+                        // 如果已经选了同一个选项，则不做任何改变（也可以允许取消，但为了简单，不取消）
+                        if (answers[currentIndex] === opt) return;
+
+                        // 如果之前有选择，需要扣除之前的分数
+                        if (answers[currentIndex]) {
+                            const oldType = OPTION_TYPE[answers[currentIndex]];
+                            scores[oldType] -= 1;
+                        }
+
+                        // 记录新选择，增加分数
+                        answers[currentIndex] = opt;
+                        const newType = OPTION_TYPE[opt];
+                        scores[newType] += 1;
+
+                        // 更新当前选项高亮
+                        document.querySelectorAll('.option-btn').forEach(b => {
+                            b.classList.remove('selected');
+                        });
+                        btn.classList.add('selected');
+
+                        // 如果不是最后一题，自动进入下一题（也可设计为手动，但原逻辑是自动，我们保持自动）
+                        if (currentIndex < QUESTIONS.length - 1) {
                             currentIndex++;
                             renderQuestion();
                         } else {
+                            // 完成测试
                             finishTest();
                         }
                     });
                 });
+
+                // 控制上一题按钮显示
+                if (currentIndex > 0) {
+                    prevBtn.classList.remove('hidden');
+                } else {
+                    prevBtn.classList.add('hidden');
+                }
             }
 
+            // 上一题点击处理
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    // 注意：不需要扣分，因为分数已经存储在scores中，且answers保存了之前的选择。
+                    // 直接后退，重新渲染题目，保留之前的选择。
+                    currentIndex--;
+                    renderQuestion();
+                }
+            });
+
+            // 完成测试，显示结果
             function finishTest() {
                 testFinished = true;
                 questionPanel.style.display = 'none';
-                // 计算最终类型
+                // 计算最终类型 (可能并列)
                 const entries = [
                     { type: 'social', score: scores.social },
                     { type: 'task', score: scores.task },
@@ -536,47 +660,36 @@
                 const key = (topTypes.length > 1) ? 'mixed' : topTypes[0];
                 const res = RESULT[key];
 
-                // 构建华丽结果页
                 let html = `<div class="result-wrap">`;
                 html += `<div class="result-emojibadge">${res.title}</div>`;
 
-                // 金句区 (点睛之笔)
                 if (res.hit) {
                     html += `<div class="hit-quote">“${res.hit}”</div>`;
                 }
 
-                // 核心特质
                 html += `<div class="section"><h4>✨ 核心特质</h4><div class="section-content">${res.core}</div></div>`;
 
-                // 思维模式 (如果有)
                 if (res.mindset) {
                     html += `<div class="section"><h4>🧠 思维模式</h4><div class="section-content">${res.mindset}</div></div>`;
                 }
 
-                // 优势
                 if (res.strength) {
                     html += `<div class="section"><h4>⚡️ 你的优势</h4><div class="section-content" style="white-space:pre-line;">${res.strength}</div></div>`;
                 }
 
-                // 盲区
                 if (res.blind) {
                     html += `<div class="section"><h4>⚠️ 你的盲区</h4><div class="section-content" style="white-space:pre-line;">${res.blind}</div></div>`;
                 }
 
-                // 时代价值
                 if (res.era) {
                     html += `<div class="section"><h4>🤖 2026 AI时代</h4><div class="section-content">${res.era}</div></div>`;
                 }
 
-                // 行动建议
                 if (res.advice) {
                     html += `<div class="section"><h4>💡 行动建议</h4><div class="section-content" style="white-space:pre-line;">${res.advice}</div></div>`;
                 }
 
-                // 专属tag
                 html += `<div class="tagline">${res.tag}</div>`;
-
-                // 重新测试按钮
                 html += `<button class="restart-btn" id="restartBtn">🔄 重新测试</button>`;
                 html += `</div>`;
 
